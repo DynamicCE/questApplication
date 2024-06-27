@@ -1,6 +1,7 @@
 package com.questApplication.questApplication.entity.dto;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class CommentDTO {
@@ -9,5 +10,5 @@ public class CommentDTO {
     private String status;
     private Long userId;
     private Long postId;
-    private int likeCount;
+    private List<Long> likeIds;
 }
