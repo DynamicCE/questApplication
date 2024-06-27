@@ -3,13 +3,15 @@ package com.questApplication.questApplication.business.abstracts;
 import com.questApplication.questApplication.core.utilities.results.DataResult;
 import com.questApplication.questApplication.core.utilities.results.Result;
 import com.questApplication.questApplication.entity.dto.UserDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    DataResult<List<UserDTO>> getAllUsers();
+    DataResult<Page<UserDTO>> getAllUsers(Pageable pageable);
     DataResult<UserDTO> getUserById(Long id);
     DataResult<UserDTO> createUser(UserDTO userDTO);
     DataResult<UserDTO> updateUser(Long id, UserDTO userDTO);
     Result deleteUser(Long id);
+    DataResult<UserDTO> getUserByUsername(String username);
+    DataResult<UserDTO> activateUser(Long id);
 }

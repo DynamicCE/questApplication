@@ -10,10 +10,10 @@ import com.questApplication.questApplication.repository.PostRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PostManager implements PostService {
@@ -28,14 +28,12 @@ public class PostManager implements PostService {
     }
 
     @Override
-    public DataResult<List<PostDTO>> getAllPosts() {
-        logger.info("Tüm gönderiler getiriliyor");
+    public DataResult<Page<PostDTO>> getAllPosts(Pageable pageable) {
+        logger.info("Tüm gönderiler getiriliyor. Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
         try {
-            List<Post> posts = postRepository.findAll();
-            List<PostDTO> postDTOs = posts.stream()
-                    .map(postMapper::toDTO)
-                    .collect(Collectors.toList());
-            logger.info("Toplam {} gönderi başarıyla getirildi", postDTOs.size());
+            Page<Post> posts = postRepository.findAllByStatusNot("D", pageable);
+            Page<PostDTO> postDTOs = posts.map(postMapper::toDTO);
+            logger.info("Toplam {} gönderi başarıyla getirildi", postDTOs.getTotalElements());
             return new SuccessDataResult<>(postDTOs, "Gönderiler başarıyla getirildi");
         } catch (Exception e) {
             logger.error("Gönderiler getirilirken bir hata oluştu", e);
@@ -47,7 +45,7 @@ public class PostManager implements PostService {
     public DataResult<PostDTO> getPostById(Long id) {
         logger.info("{} ID'li gönderi getiriliyor", id);
         try {
-            Post post = postRepository.findById(id).orElse(null);
+            Post post = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
             if (post != null) {
                 PostDTO postDTO = postMapper.toDTO(post);
                 logger.info("{} ID'li gönderi başarıyla getirildi", id);
@@ -63,14 +61,12 @@ public class PostManager implements PostService {
     }
 
     @Override
-    public DataResult<List<PostDTO>> getPostsByUserId(Long userId) {
-        logger.info("{} ID'li kullanıcının gönderileri getiriliyor", userId);
+    public DataResult<Page<PostDTO>> getPostsByUserId(Long userId, Pageable pageable) {
+        logger.info("{} ID'li kullanıcının gönderileri getiriliyor. Sayfa: {}, Boyut: {}", userId, pageable.getPageNumber(), pageable.getPageSize());
         try {
-            List<Post> posts = postRepository.findByUserId(userId);
-            List<PostDTO> postDTOs = posts.stream()
-                    .map(postMapper::toDTO)
-                    .collect(Collectors.toList());
-            logger.info("{} ID'li kullanıcının {} gönderisi başarıyla getirildi", userId, postDTOs.size());
+            Page<Post> posts = postRepository.findByUserIdAndStatusNot(userId, "D", pageable);
+            Page<PostDTO> postDTOs = posts.map(postMapper::toDTO);
+            logger.info("{} ID'li kullanıcının {} gönderisi başarıyla getirildi", userId, postDTOs.getTotalElements());
             return new SuccessDataResult<>(postDTOs, "Kullanıcı gönderileri başarıyla getirildi");
         } catch (Exception e) {
             logger.error("{} ID'li kullanıcının gönderileri getirilirken bir hata oluştu", userId, e);
@@ -79,10 +75,12 @@ public class PostManager implements PostService {
     }
 
     @Override
+    @Transactional
     public DataResult<PostDTO> createPost(PostDTO postDTO) {
         logger.info("Yeni gönderi oluşturuluyor");
         try {
             Post post = postMapper.toEntity(postDTO);
+            post.setStatus("A"); // Active
             Post savedPost = postRepository.save(post);
             PostDTO savedPostDTO = postMapper.toDTO(savedPost);
             logger.info("{} ID'li yeni gönderi başarıyla oluşturuldu", savedPostDTO.getId());
@@ -94,13 +92,15 @@ public class PostManager implements PostService {
     }
 
     @Override
+    @Transactional
     public DataResult<PostDTO> updatePost(Long id, PostDTO postDTO) {
         logger.info("{} ID'li gönderi güncelleniyor", id);
         try {
-            Post existingPost = postRepository.findById(id).orElse(null);
+            Post existingPost = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
             if (existingPost != null) {
                 Post updatedPost = postMapper.toEntity(postDTO);
                 updatedPost.setId(id);
+                updatedPost.setStatus("U"); // Updated
                 Post savedPost = postRepository.save(updatedPost);
                 PostDTO savedPostDTO = postMapper.toDTO(savedPost);
                 logger.info("{} ID'li gönderi başarıyla güncellendi", id);
@@ -116,12 +116,15 @@ public class PostManager implements PostService {
     }
 
     @Override
+    @Transactional
     public Result deletePost(Long id) {
-        logger.info("{} ID'li gönderi siliniyor", id);
+        logger.info("{} ID'li gönderi siliniyor (soft delete)", id);
         try {
-            if (postRepository.existsById(id)) {
-                postRepository.deleteById(id);
-                logger.info("{} ID'li gönderi başarıyla silindi", id);
+            Post post = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
+            if (post != null) {
+                post.setStatus("D"); // Deleted
+                postRepository.save(post);
+                logger.info("{} ID'li gönderi başarıyla silindi (soft delete)", id);
                 return new SuccessResult("Gönderi başarıyla silindi");
             } else {
                 logger.warn("{} ID'li gönderi bulunamadı", id);
@@ -130,6 +133,28 @@ public class PostManager implements PostService {
         } catch (Exception e) {
             logger.error("{} ID'li gönderi silinirken bir hata oluştu", id, e);
             return new ErrorResult("Gönderi silinirken bir hata oluştu");
+        }
+    }
+
+    @Override
+    @Transactional
+    public DataResult<PostDTO> activatePost(Long id) {
+        logger.info("{} ID'li gönderi aktifleştiriliyor", id);
+        try {
+            Post post = postRepository.findById(id).orElse(null);
+            if (post != null && !post.getStatus().equals("A")) {
+                post.setStatus("A"); // Active
+                Post savedPost = postRepository.save(post);
+                PostDTO activatedPostDTO = postMapper.toDTO(savedPost);
+                logger.info("{} ID'li gönderi başarıyla aktifleştirildi", id);
+                return new SuccessDataResult<>(activatedPostDTO, "Gönderi başarıyla aktifleştirildi");
+            } else {
+                logger.warn("{} ID'li gönderi bulunamadı veya zaten aktif", id);
+                return new ErrorDataResult<>(null, "Aktifleştirilecek gönderi bulunamadı veya zaten aktif");
+            }
+        } catch (Exception e) {
+            logger.error("{} ID'li gönderi aktifleştirilirken bir hata oluştu", id, e);
+            return new ErrorDataResult<>(null, "Gönderi aktifleştirilirken bir hata oluştu");
         }
     }
 }

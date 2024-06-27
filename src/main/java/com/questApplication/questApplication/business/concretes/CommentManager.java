@@ -1,24 +1,18 @@
 package com.questApplication.questApplication.business.concretes;
 
 import com.questApplication.questApplication.business.abstracts.CommentService;
-import com.questApplication.questApplication.core.utilities.results.DataResult;
-import com.questApplication.questApplication.core.utilities.results.Result;
-import com.questApplication.questApplication.core.utilities.results.SuccessDataResult;
-import com.questApplication.questApplication.core.utilities.results.ErrorDataResult;
-import com.questApplication.questApplication.core.utilities.results.SuccessResult;
-import com.questApplication.questApplication.core.utilities.results.ErrorResult;
+import com.questApplication.questApplication.core.utilities.results.*;
 import com.questApplication.questApplication.entity.Comment;
 import com.questApplication.questApplication.entity.dto.CommentDTO;
-
 import com.questApplication.questApplication.mapper.CommentMapper;
 import com.questApplication.questApplication.repository.CommentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentManager implements CommentService {
@@ -33,14 +27,12 @@ public class CommentManager implements CommentService {
     }
 
     @Override
-    public DataResult<List<CommentDTO>> getAllComments() {
-        logger.info("Tüm yorumlar getiriliyor");
+    public DataResult<Page<CommentDTO>> getAllComments(Pageable pageable) {
+        logger.info("Tüm yorumlar getiriliyor. Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
         try {
-            List<Comment> comments = commentRepository.findAll();
-            List<CommentDTO> commentDTOs = comments.stream()
-                    .map(commentMapper::toDTO)
-                    .collect(Collectors.toList());
-            logger.info("Toplam {} yorum başarıyla getirildi", commentDTOs.size());
+            Page<Comment> comments = commentRepository.findAllByStatusNot("D", pageable);
+            Page<CommentDTO> commentDTOs = comments.map(commentMapper::toDTO);
+            logger.info("Toplam {} yorum başarıyla getirildi", commentDTOs.getTotalElements());
             return new SuccessDataResult<>(commentDTOs, "Yorumlar başarıyla getirildi");
         } catch (Exception e) {
             logger.error("Yorumlar getirilirken bir hata oluştu", e);
@@ -52,7 +44,7 @@ public class CommentManager implements CommentService {
     public DataResult<CommentDTO> getCommentById(Long id) {
         logger.info("{} ID'li yorum getiriliyor", id);
         try {
-            Comment comment = commentRepository.findById(id).orElse(null);
+            Comment comment = commentRepository.findByIdAndStatusNot(id, "D").orElse(null);
             if (comment != null) {
                 CommentDTO commentDTO = commentMapper.toDTO(comment);
                 logger.info("{} ID'li yorum başarıyla getirildi", id);
@@ -68,14 +60,12 @@ public class CommentManager implements CommentService {
     }
 
     @Override
-    public DataResult<List<CommentDTO>> getCommentsByPostId(Long postId) {
-        logger.info("{} ID'li gönderinin yorumları getiriliyor", postId);
+    public DataResult<Page<CommentDTO>> getCommentsByPostId(Long postId, Pageable pageable) {
+        logger.info("{} ID'li gönderinin yorumları getiriliyor. Sayfa: {}, Boyut: {}", postId, pageable.getPageNumber(), pageable.getPageSize());
         try {
-            List<Comment> comments = commentRepository.findByPostId(postId);
-            List<CommentDTO> commentDTOs = comments.stream()
-                    .map(commentMapper::toDTO)
-                    .collect(Collectors.toList());
-            logger.info("{} ID'li gönderinin {} yorumu başarıyla getirildi", postId, commentDTOs.size());
+            Page<Comment> comments = commentRepository.findByPostIdAndStatusNot(postId, "D", pageable);
+            Page<CommentDTO> commentDTOs = comments.map(commentMapper::toDTO);
+            logger.info("{} ID'li gönderinin {} yorumu başarıyla getirildi", postId, commentDTOs.getTotalElements());
             return new SuccessDataResult<>(commentDTOs, "Gönderi yorumları başarıyla getirildi");
         } catch (Exception e) {
             logger.error("{} ID'li gönderinin yorumları getirilirken bir hata oluştu", postId, e);
@@ -84,14 +74,12 @@ public class CommentManager implements CommentService {
     }
 
     @Override
-    public DataResult<List<CommentDTO>> getCommentsByUserId(Long userId) {
-        logger.info("{} ID'li kullanıcının yorumları getiriliyor", userId);
+    public DataResult<Page<CommentDTO>> getCommentsByUserId(Long userId, Pageable pageable) {
+        logger.info("{} ID'li kullanıcının yorumları getiriliyor. Sayfa: {}, Boyut: {}", userId, pageable.getPageNumber(), pageable.getPageSize());
         try {
-            List<Comment> comments = commentRepository.findByUserId(userId);
-            List<CommentDTO> commentDTOs = comments.stream()
-                    .map(commentMapper::toDTO)
-                    .collect(Collectors.toList());
-            logger.info("{} ID'li kullanıcının {} yorumu başarıyla getirildi", userId, commentDTOs.size());
+            Page<Comment> comments = commentRepository.findByUserIdAndStatusNot(userId, "D", pageable);
+            Page<CommentDTO> commentDTOs = comments.map(commentMapper::toDTO);
+            logger.info("{} ID'li kullanıcının {} yorumu başarıyla getirildi", userId, commentDTOs.getTotalElements());
             return new SuccessDataResult<>(commentDTOs, "Kullanıcı yorumları başarıyla getirildi");
         } catch (Exception e) {
             logger.error("{} ID'li kullanıcının yorumları getirilirken bir hata oluştu", userId, e);
@@ -100,10 +88,12 @@ public class CommentManager implements CommentService {
     }
 
     @Override
+    @Transactional
     public DataResult<CommentDTO> createComment(CommentDTO commentDTO) {
         logger.info("Yeni yorum oluşturuluyor");
         try {
             Comment comment = commentMapper.toEntity(commentDTO);
+            comment.setStatus("A"); // Active
             Comment savedComment = commentRepository.save(comment);
             CommentDTO savedCommentDTO = commentMapper.toDTO(savedComment);
             logger.info("{} ID'li yeni yorum başarıyla oluşturuldu", savedCommentDTO.getId());
@@ -115,13 +105,15 @@ public class CommentManager implements CommentService {
     }
 
     @Override
+    @Transactional
     public DataResult<CommentDTO> updateComment(Long id, CommentDTO commentDTO) {
         logger.info("{} ID'li yorum güncelleniyor", id);
         try {
-            Comment existingComment = commentRepository.findById(id).orElse(null);
+            Comment existingComment = commentRepository.findByIdAndStatusNot(id, "D").orElse(null);
             if (existingComment != null) {
                 Comment updatedComment = commentMapper.toEntity(commentDTO);
                 updatedComment.setId(id);
+                updatedComment.setStatus("U"); // Updated
                 Comment savedComment = commentRepository.save(updatedComment);
                 CommentDTO savedCommentDTO = commentMapper.toDTO(savedComment);
                 logger.info("{} ID'li yorum başarıyla güncellendi", id);
@@ -137,12 +129,15 @@ public class CommentManager implements CommentService {
     }
 
     @Override
+    @Transactional
     public Result deleteComment(Long id) {
-        logger.info("{} ID'li yorum siliniyor", id);
+        logger.info("{} ID'li yorum siliniyor (soft delete)", id);
         try {
-            if (commentRepository.existsById(id)) {
-                commentRepository.deleteById(id);
-                logger.info("{} ID'li yorum başarıyla silindi", id);
+            Comment comment = commentRepository.findByIdAndStatusNot(id, "D").orElse(null);
+            if (comment != null) {
+                comment.setStatus("D"); // Deleted
+                commentRepository.save(comment);
+                logger.info("{} ID'li yorum başarıyla silindi (soft delete)", id);
                 return new SuccessResult("Yorum başarıyla silindi");
             } else {
                 logger.warn("{} ID'li yorum bulunamadı", id);
@@ -151,6 +146,28 @@ public class CommentManager implements CommentService {
         } catch (Exception e) {
             logger.error("{} ID'li yorum silinirken bir hata oluştu", id, e);
             return new ErrorResult("Yorum silinirken bir hata oluştu");
+        }
+    }
+
+    @Override
+    @Transactional
+    public DataResult<CommentDTO> activateComment(Long id) {
+        logger.info("{} ID'li yorum aktifleştiriliyor", id);
+        try {
+            Comment comment = commentRepository.findById(id).orElse(null);
+            if (comment != null && !comment.getStatus().equals("A")) {
+                comment.setStatus("A"); // Active
+                Comment savedComment = commentRepository.save(comment);
+                CommentDTO activatedCommentDTO = commentMapper.toDTO(savedComment);
+                logger.info("{} ID'li yorum başarıyla aktifleştirildi", id);
+                return new SuccessDataResult<>(activatedCommentDTO, "Yorum başarıyla aktifleştirildi");
+            } else {
+                logger.warn("{} ID'li yorum bulunamadı veya zaten aktif", id);
+                return new ErrorDataResult<>(null, "Aktifleştirilecek yorum bulunamadı veya zaten aktif");
+            }
+        } catch (Exception e) {
+            logger.error("{} ID'li yorum aktifleştirilirken bir hata oluştu", id, e);
+            return new ErrorDataResult<>(null, "Yorum aktifleştirilirken bir hata oluştu");
         }
     }
 }
