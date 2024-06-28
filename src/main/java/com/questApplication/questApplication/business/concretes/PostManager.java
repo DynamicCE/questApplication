@@ -1,10 +1,9 @@
 package com.questApplication.questApplication.business.concretes;
 
 import com.questApplication.questApplication.business.abstracts.PostService;
-import com.questApplication.questApplication.core.utilities.results.*;
+import com.questApplication.questApplication.core.utilities.result.*;
 import com.questApplication.questApplication.entity.Post;
 import com.questApplication.questApplication.entity.dto.PostDTO;
-
 import com.questApplication.questApplication.mapper.PostMapper;
 import com.questApplication.questApplication.repository.PostRepository;
 import org.slf4j.Logger;
@@ -142,15 +141,20 @@ public class PostManager implements PostService {
         logger.info("{} ID'li gönderi aktifleştiriliyor", id);
         try {
             Post post = postRepository.findById(id).orElse(null);
-            if (post != null && !post.getStatus().equals("A")) {
-                post.setStatus("A"); // Active
-                Post savedPost = postRepository.save(post);
-                PostDTO activatedPostDTO = postMapper.toDTO(savedPost);
-                logger.info("{} ID'li gönderi başarıyla aktifleştirildi", id);
-                return new SuccessDataResult<>(activatedPostDTO, "Gönderi başarıyla aktifleştirildi");
+            if (post != null) {
+                if (!post.getStatus().equals("A")) {
+                    post.setStatus("A"); // Active
+                    Post savedPost = postRepository.save(post);
+                    PostDTO activatedPostDTO = postMapper.toDTO(savedPost);
+                    logger.info("{} ID'li gönderi başarıyla aktifleştirildi", id);
+                    return new SuccessDataResult<>(activatedPostDTO, "Gönderi başarıyla aktifleştirildi");
+                } else {
+                    logger.warn("{} ID'li gönderi zaten aktif", id);
+                    return new ErrorDataResult<>(null, "Gönderi zaten aktif");
+                }
             } else {
-                logger.warn("{} ID'li gönderi bulunamadı veya zaten aktif", id);
-                return new ErrorDataResult<>(null, "Aktifleştirilecek gönderi bulunamadı veya zaten aktif");
+                logger.warn("{} ID'li gönderi bulunamadı", id);
+                return new ErrorDataResult<>(null, "Aktifleştirilecek gönderi bulunamadı");
             }
         } catch (Exception e) {
             logger.error("{} ID'li gönderi aktifleştirilirken bir hata oluştu", id, e);
