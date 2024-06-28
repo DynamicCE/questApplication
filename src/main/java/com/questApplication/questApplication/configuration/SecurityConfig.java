@@ -12,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -21,22 +19,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
-                                .anyRequest().authenticated()
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults()) // Form tabanlı kimlik doğrulama
-                .httpBasic(withDefaults()); // Basic authentication
+                .httpBasic(httpBasic -> {})
+                .formLogin(formLogin -> {});
 
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails user = User.builder()
                 .username("user")
-                .password("{noop}password") // NoOpPasswordEncoder kullanarak basit şifreleme
+                .password(passwordEncoder.encode("password"))
                 .roles("USER")
                 .build();
 
@@ -44,8 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder ();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
