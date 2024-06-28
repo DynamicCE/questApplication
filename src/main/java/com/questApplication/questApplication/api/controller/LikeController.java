@@ -33,23 +33,31 @@ public class LikeController {
     public ResponseEntity<DataResult<Page<LikeDTO>>> getLikesByPostId(
             @PathVariable Long postId,
             Pageable pageable) {
-        logger.debug("Gönderi ID'si {} için beğeniler getiriliyor, Sayfa: {}, Boyut: {}", postId, pageable.getPageNumber(), pageable.getPageSize());
-        return ResponseEntity.ok(likeService.getLikesByPostId(postId, pageable));
+        logger.debug("getLikesByPostId isteği alındı. Post ID: {}, Sayfa: {}, Boyut: {}", postId, pageable.getPageNumber(), pageable.getPageSize());
+        DataResult<Page<LikeDTO>> result = likeService.getLikesByPostId(postId, pageable);
+        return result.isSuccess()
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
     @PostMapping
     @Operation(summary = "Yeni bir beğeni oluştur", description = "Yeni bir beğeni oluşturur ve sonucu döndürür")
     public ResponseEntity<Result> createLike(@Valid @RequestBody LikeDTO likeDTO) {
-        logger.info("Yeni beğeni oluşturuluyor");
+        logger.debug("createLike isteği alındı");
         Result result = likeService.createLike(likeDTO);
-        return ResponseEntity.status(result.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(result);
+        return result.isSuccess()
+                ? ResponseEntity.status(HttpStatus.CREATED).body(result)
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
     }
 
     @GetMapping("/count/{postId}")
     @Operation(summary = "Gönderi beğeni sayısını getir", description = "Belirli bir gönderinin toplam beğeni sayısını getirir")
     public ResponseEntity<DataResult<Long>> getLikeCountForPost(@PathVariable Long postId) {
-        logger.debug("Gönderi ID'si {} için beğeni sayısı getiriliyor", postId);
-        return ResponseEntity.ok(likeService.getLikeCountForPost(postId));
+        logger.debug("getLikeCountForPost isteği alındı. Post ID: {}", postId);
+        DataResult<Long> result = likeService.getLikeCountForPost(postId);
+        return result.isSuccess()
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
     @ExceptionHandler(Exception.class)
