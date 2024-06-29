@@ -25,6 +25,20 @@ public class LikeManager implements LikeService {
     }
 
     @Override
+    public DataResult<Page<LikeDTO>> getAllLikes(Pageable pageable) {
+        logger.info("Tüm beğeniler getiriliyor, Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
+        try {
+            Page<Like> likes = likeRepository.findAll(pageable);
+            Page<LikeDTO> likeDTOs = likes.map(likeMapper::toDTO);
+            logger.info("Toplam {} beğeni başarıyla getirildi", likeDTOs.getTotalElements());
+            return new SuccessDataResult<>(likeDTOs, "Tüm beğeniler başarıyla getirildi");
+        } catch (Exception e) {
+            logger.error("Beğeniler getirilirken bir hata oluştu", e);
+            return new ErrorDataResult<>(null, "Beğeniler getirilirken bir hata oluştu");
+        }
+    }
+
+    @Override
     public DataResult<Page<LikeDTO>> getLikesByPostId(Long postId, Pageable pageable) {
         logger.info("{} ID'li gönderinin beğenileri getiriliyor, Sayfa: {}, Boyut: {}", postId, pageable.getPageNumber(), pageable.getPageSize());
         try {
@@ -68,4 +82,6 @@ public class LikeManager implements LikeService {
             return new ErrorDataResult<>(null, "Gönderi beğeni sayısı getirilirken bir hata oluştu");
         }
     }
+
+
 }

@@ -28,7 +28,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
+    @GetMapping("/")
     @Operation(summary = "Tüm kullanıcıları getir", description = "Tüm kullanıcıları sayfalanmış şekilde getirir")
     public ResponseEntity<DataResult<Page<UserDTO>>> getAllUsers(Pageable pageable) {
         logger.debug("getAllUsers isteği alındı. Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
@@ -48,7 +48,7 @@ public class UserController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
-    @PostMapping
+    @PostMapping("/")
     @Operation(summary = "Yeni bir kullanıcı oluştur", description = "Yeni bir kullanıcı oluşturur ve oluşturulan kullanıcıyı döndürür")
     public ResponseEntity<DataResult<UserDTO>> createUser(@Valid @RequestBody UserDTO userDTO) {
         logger.debug("createUser isteği alındı");

@@ -28,6 +28,17 @@ public class LikeController {
         this.likeService = likeService;
     }
 
+    @GetMapping("/")
+    @Operation(summary = "Tüm beğenileri getir", description = "Tüm beğenileri sayfalanmış şekilde getirir")
+    public ResponseEntity<DataResult<Page<LikeDTO>>> getAllLikes(Pageable pageable) {
+        logger.debug("getAllLikes isteği alındı. Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
+        DataResult<Page<LikeDTO>> result = likeService.getAllLikes(pageable);
+        return result.isSuccess()
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    }
+
+
     @GetMapping("/post/{postId}")
     @Operation(summary = "Gönderi ID'sine göre beğenileri getir", description = "Belirli bir gönderiye ait sayfalanmış beğenileri getirir")
     public ResponseEntity<DataResult<Page<LikeDTO>>> getLikesByPostId(
@@ -40,7 +51,7 @@ public class LikeController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
-    @PostMapping
+    @PostMapping("/")
     @Operation(summary = "Yeni bir beğeni oluştur", description = "Yeni bir beğeni oluşturur ve sonucu döndürür")
     public ResponseEntity<Result> createLike(@Valid @RequestBody LikeDTO likeDTO) {
         logger.debug("createLike isteği alındı");
