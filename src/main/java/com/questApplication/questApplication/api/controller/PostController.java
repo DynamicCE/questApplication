@@ -28,7 +28,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     @Operation(summary = "Tüm gönderileri getir", description = "Tüm gönderileri sayfalanmış şekilde getirir")
     public ResponseEntity<DataResult<Page<PostDTO>>> getAllPosts(Pageable pageable) {
         logger.debug("getAllPosts isteği alındı. Sayfa: {}, Boyut: {}", pageable.getPageNumber(), pageable.getPageSize());
@@ -48,7 +48,7 @@ public class PostController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
-    @PostMapping("/")
+    @PostMapping
     @Operation(summary = "Yeni bir gönderi oluştur", description = "Yeni bir gönderi oluşturur ve oluşturulan gönderiyi döndürür")
     public ResponseEntity<DataResult<PostDTO>> createPost(@Valid @RequestBody PostDTO postDTO) {
         logger.debug("createPost isteği alındı");
