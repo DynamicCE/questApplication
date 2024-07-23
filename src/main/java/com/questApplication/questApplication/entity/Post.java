@@ -13,8 +13,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String title;
-    String status;
+    private String title;
+    private String text;
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
