@@ -3,6 +3,7 @@ package com.questApplication.questApplication.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -10,12 +11,14 @@ import java.util.List;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String text;
-    String status;
+    private String text;
+    private String status;
 
+    private LocalDateTime createdAt;
     @ManyToOne
+
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -25,4 +28,6 @@ public class Comment {
 
     @OneToMany(mappedBy = "comment")
     private List<Like> likes;
+
+
 }
