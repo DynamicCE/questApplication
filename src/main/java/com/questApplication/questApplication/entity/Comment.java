@@ -2,6 +2,7 @@ package com.questApplication.questApplication.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,9 +17,11 @@ public class Comment {
     private String text;
     private String status;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
-    @ManyToOne
 
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
