@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-
+//test
 @RestController
 @RequestMapping("/api/v1/comments")
 @Tag(name = "Yorum Denetleyicisi", description = "Yorum işlemlerini yönetir")
