@@ -18,12 +18,6 @@ class LoggingAspect {
               " execution(* com.questApplication.questApplication.business.concretes.*.*(..))")
     public void controllerAndServiceMethods(){}
 
-
-    @Before("controllerAndServiceMethods()")
-    public void logBeforeMethod( JoinPoint joinPoint ){
-        log.info ( "method "+joinPoint.getSignature ()+" started" );
-    }
-
     @AfterThrowing(value = "controllerAndServiceMethods()",throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint,Throwable exception){
         log.error ( "Hata oluştu: " + joinPoint.getSignature ().getName () );
