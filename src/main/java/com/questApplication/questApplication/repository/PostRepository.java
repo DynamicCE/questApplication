@@ -13,4 +13,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllByStatusNot(String status, Pageable pageable);
     Optional<Post> findByIdAndStatusNot(Long id, String status);
     Page<Post> findByUserIdAndStatusNot(Long userId, String status, Pageable pageable);
+
+    boolean existsByIdAndStatusNot ( Long postId, String d );
 }

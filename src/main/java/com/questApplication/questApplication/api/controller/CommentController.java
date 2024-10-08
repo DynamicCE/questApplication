@@ -3,16 +3,18 @@ package com.questApplication.questApplication.api.controller;
 import com.questApplication.questApplication.business.abstracts.CommentService;
 import com.questApplication.questApplication.core.utilities.result.DataResult;
 import com.questApplication.questApplication.core.utilities.result.Result;
-import com.questApplication.questApplication.entity.dto.CommentDTO;
+import com.questApplication.questApplication.entity.dto.request.CommentRequestDto;
+import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/comments")
@@ -27,66 +29,58 @@ public class CommentController {
 
     @GetMapping("/post/{postId}")
     @Operation(summary = "Gönderi ID'sine göre yorumları getir", description = "Belirli bir gönderiye ait sayfalanmış yorumları getirir")
-    public ResponseEntity<DataResult<Page<CommentDTO>>> getCommentsByPostId(
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByPostId(
             @PathVariable Long postId,
             Pageable pageable) {
-        DataResult<Page<CommentDTO>> result = commentService.getCommentsByPostId(postId, pageable);
-        return result.isSuccess()
-                ? ResponseEntity.ok(result)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        Page<CommentResponseDto> result = commentService.getCommentsByPostId(postId, pageable);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Kullanıcı ID'sine göre yorumları getir", description = "Belirli bir kullanıcıya ait sayfalanmış yorumları getirir")
-    public ResponseEntity<DataResult<Page<CommentDTO>>> getCommentsByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        DataResult<Page<CommentDTO>> result = commentService.getCommentsByUserId(userId, pageable);
-        return result.isSuccess()
-                ? ResponseEntity.ok(result)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    @GetMapping("/user")
+    @Operation(summary = "Oturum açmış kullanıcının yorumlarını getir", description = "Oturum açmış kullanıcının yorumlarını sayfalanmış şekilde getirir")
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByCurrentUser(
+            Pageable pageable,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Page<CommentResponseDto> result = commentService.getCommentsByCurrentUser(username, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
     @Operation(summary = "Yeni bir yorum oluştur", description = "Yeni bir yorum oluşturur ve oluşturulan yorumu döndürür")
-    public ResponseEntity<DataResult<CommentDTO>> createComment(@Valid @RequestBody CommentDTO commentDTO) {
-        DataResult<CommentDTO> result = commentService.createComment(commentDTO);
-        return result.isSuccess()
-                ? ResponseEntity.status(HttpStatus.CREATED).body(result)
-                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    public ResponseEntity<CommentResponseDto> createComment(
+            @Valid @RequestBody CommentRequestDto commentRequestDto,
+            Authentication authentication) {
+        String username = authentication.getName();
+        CommentResponseDto result = commentService.createComment(commentRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Bir yorumu güncelle", description = "Mevcut bir yorumu günceller ve güncellenmiş yorumu döndürür")
-    public ResponseEntity<DataResult<CommentDTO>> updateComment(
+    public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long id,
-            @Valid @RequestBody CommentDTO commentDTO) {
-        DataResult<CommentDTO> result = commentService.updateComment(id, commentDTO);
-        return result.isSuccess()
-                ? ResponseEntity.ok(result)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+            @Valid @RequestBody CommentRequestDto commentRequestDto,
+            Authentication authentication) {
+        String username = authentication.getName();
+        CommentResponseDto result = commentService.updateComment(id, commentRequestDto, username);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Bir yorumu sil", description = "Bir yorumu ID'sine göre siler")
-    public ResponseEntity<Result> deleteComment(@PathVariable Long id) {
-        Result result = commentService.deleteComment(id);
-        return result.isSuccess()
-                ? ResponseEntity.ok(result)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String username = authentication.getName();
+        commentService.deleteComment(id, username);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "ID'ye göre yorum getir", description = "Belirli bir yorumu ID'sine göre getirir")
-    public ResponseEntity<DataResult<CommentDTO>> getCommentById(@PathVariable Long id) {
-        DataResult<CommentDTO> result = commentService.getCommentById(id);
-        return result.isSuccess()
-                ? ResponseEntity.ok(result)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen bir hata oluştu");
+    public ResponseEntity<CommentResponseDto> getCommentById(@PathVariable Long id) {
+        CommentResponseDto result = commentService.getCommentById(id);
+        return ResponseEntity.ok(result);
     }
 }

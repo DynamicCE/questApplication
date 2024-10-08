@@ -1,11 +1,15 @@
 package com.questApplication.questApplication.business.concretes;
 
 import com.questApplication.questApplication.business.abstracts.PostService;
-import com.questApplication.questApplication.core.utilities.result.*;
+import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
+import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.Post;
-import com.questApplication.questApplication.entity.dto.PostDTO;
+import com.questApplication.questApplication.entity.User;
+import com.questApplication.questApplication.entity.dto.request.PostRequestDto;
+import com.questApplication.questApplication.entity.dto.response.PostResponseDto;
 import com.questApplication.questApplication.mapper.PostMapper;
 import com.questApplication.questApplication.repository.PostRepository;
+import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,120 +21,79 @@ public class PostManager implements PostService {
 
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PostManager(PostRepository postRepository, PostMapper postMapper) {
+    public PostManager(PostRepository postRepository, PostMapper postMapper, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public DataResult<Page<PostDTO>> getAllPosts(Pageable pageable) {
-        try {
-            Page<Post> posts = postRepository.findAllByStatusNot("D", pageable);
-            Page<PostDTO> postDTOs = posts.map(postMapper::toDTO);
-            return new SuccessDataResult<>(postDTOs, "Gönderiler başarıyla getirildi");
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Gönderiler getirilirken bir hata oluştu");
-        }
+    public Page<PostResponseDto> getAllPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findAllByStatusNot("D", pageable);
+        return posts.map(postMapper::toResponseDto);
     }
 
     @Override
-    public DataResult<PostDTO> getPostById(Long id) {
-        try {
-            Post post = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (post != null) {
-                PostDTO postDTO = postMapper.toDTO(post);
-                return new SuccessDataResult<>(postDTO, "Gönderi başarıyla getirildi");
-            } else {
-                return new ErrorDataResult<>(null, "Gönderi bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Gönderi getirilirken bir hata oluştu");
-        }
+    public PostResponseDto getPostById(Long id) {
+        Post post = postRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
+        return postMapper.toResponseDto(post);
     }
 
     @Override
-    public DataResult<Page<PostDTO>> getPostsByUserId(Long userId, Pageable pageable) {
-        try {
-            Page<Post> posts = postRepository.findByUserIdAndStatusNot(userId, "D", pageable);
-            Page<PostDTO> postDTOs = posts.map(postMapper::toDTO);
-            return new SuccessDataResult<>(postDTOs, "Kullanıcı gönderileri başarıyla getirildi");
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı gönderileri getirilirken bir hata oluştu");
-        }
+    public Page<PostResponseDto> getPostsByUser(String username, Pageable pageable) {
+        User user = userRepository.findByUsernameAndStatusNot(username, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+        Page<Post> posts = postRepository.findByUserIdAndStatusNot(user.getId(), "D", pageable);
+        return posts.map(postMapper::toResponseDto);
     }
 
     @Override
     @Transactional
-    public DataResult<PostDTO> createPost(PostDTO postDTO) {
-        try {
-            Post post = postMapper.toEntity(postDTO);
-            post.setStatus("A"); // Active
-            Post savedPost = postRepository.save(post);
-            PostDTO savedPostDTO = postMapper.toDTO(savedPost);
-            return new SuccessDataResult<>(savedPostDTO, "Gönderi başarıyla oluşturuldu");
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Gönderi oluşturulurken bir hata oluştu");
-        }
+    public PostResponseDto createPost(PostRequestDto postRequestDto, String username) {
+        User user = userRepository.findByUsernameAndStatusNot(username, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+
+        Post post = postMapper.toEntity(postRequestDto);
+        post.setUser(user);
+        post.setStatus("A");
+
+        Post savedPost = postRepository.save(post);
+        return postMapper.toResponseDto(savedPost);
     }
 
     @Override
     @Transactional
-    public DataResult<PostDTO> updatePost(Long id, PostDTO postDTO) {
-        try {
-            Post existingPost = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (existingPost != null) {
-                Post updatedPost = postMapper.toEntity(postDTO);
-                updatedPost.setId(id);
-                updatedPost.setStatus("U"); // Updated
-                Post savedPost = postRepository.save(updatedPost);
-                PostDTO savedPostDTO = postMapper.toDTO(savedPost);
-                return new SuccessDataResult<>(savedPostDTO, "Gönderi başarıyla güncellendi");
-            } else {
-                return new ErrorDataResult<>(null, "Güncellenecek gönderi bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Gönderi güncellenirken bir hata oluştu");
+    public PostResponseDto updatePost(Long id, PostRequestDto postRequestDto, String username) {
+        Post existingPost = postRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
+
+        if (!existingPost.getUser().getUsername().equals(username)) {
+            throw new UnauthorizedException("Bu gönderiyi güncelleme yetkiniz yok");
         }
+
+        existingPost.setTitle(postRequestDto.getTitle());
+        existingPost.setText(postRequestDto.getText());
+        existingPost.setStatus("U");
+
+        Post updatedPost = postRepository.save(existingPost);
+        return postMapper.toResponseDto(updatedPost);
     }
 
     @Override
     @Transactional
-    public Result deletePost(Long id) {
-        try {
-            Post post = postRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (post != null) {
-                post.setStatus("D"); // Deleted
-                postRepository.save(post);
-                return new SuccessResult("Gönderi başarıyla silindi");
-            } else {
-                return new ErrorResult("Silinecek gönderi bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorResult("Gönderi silinirken bir hata oluştu");
-        }
-    }
+    public void deletePost(Long id, String username) {
+        Post post = postRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
 
-    @Override
-    @Transactional
-    public DataResult<PostDTO> activatePost(Long id) {
-        try {
-            Post post = postRepository.findById(id).orElse(null);
-            if (post != null) {
-                if (!post.getStatus().equals("A")) {
-                    post.setStatus("A"); // Active
-                    Post savedPost = postRepository.save(post);
-                    PostDTO activatedPostDTO = postMapper.toDTO(savedPost);
-                    return new SuccessDataResult<>(activatedPostDTO, "Gönderi başarıyla aktifleştirildi");
-                } else {
-                    return new ErrorDataResult<>(null, "Gönderi zaten aktif");
-                }
-            } else {
-                return new ErrorDataResult<>(null, "Aktifleştirilecek gönderi bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Gönderi aktifleştirilirken bir hata oluştu");
+        if (!post.getUser().getUsername().equals(username)) {
+            throw new UnauthorizedException("Bu gönderiyi silme yetkiniz yok");
         }
+
+        post.setStatus("D");
+        postRepository.save(post);
     }
 }

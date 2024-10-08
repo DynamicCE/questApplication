@@ -2,7 +2,6 @@ package com.questApplication.questApplication.business.abstracts;
 
 import com.questApplication.questApplication.core.utilities.result.DataResult;
 import com.questApplication.questApplication.core.utilities.result.Result;
-import com.questApplication.questApplication.entity.dto.UserDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

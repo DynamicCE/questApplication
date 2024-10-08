@@ -3,7 +3,6 @@ package com.questApplication.questApplication.business.concretes;
 import com.questApplication.questApplication.business.abstracts.UserService;
 import com.questApplication.questApplication.core.utilities.result.*;
 import com.questApplication.questApplication.entity.User;
-import com.questApplication.questApplication.entity.dto.UserDTO;
 import com.questApplication.questApplication.mapper.UserMapper;
 import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

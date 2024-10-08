@@ -3,7 +3,6 @@ package com.questApplication.questApplication.api.controller;
 import com.questApplication.questApplication.business.abstracts.UserService;
 import com.questApplication.questApplication.core.utilities.result.DataResult;
 import com.questApplication.questApplication.core.utilities.result.Result;
-import com.questApplication.questApplication.entity.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
