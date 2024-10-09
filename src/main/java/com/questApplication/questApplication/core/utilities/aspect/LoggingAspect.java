@@ -1,4 +1,4 @@
-package com.questApplication.questApplication.aspect;
+package com.questApplication.questApplication.core.utilities.aspect;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;

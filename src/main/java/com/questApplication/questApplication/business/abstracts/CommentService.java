@@ -11,12 +11,14 @@ public interface CommentService {
 
     Page<CommentResponseDto> getCommentsByCurrentUser(String username, Pageable pageable);
 
-    CommentResponseDto createComment(CommentRequestDto commentRequestDto, String username);
+    CommentResponseDto getCommentById(Long id);
 
-    CommentResponseDto updateComment(Long id, CommentRequestDto commentRequestDto, String username);
+    void createComment(CommentRequestDto commentRequestDto, String username);
+
+    void updateComment(Long id, CommentRequestDto commentRequestDto, String username);
 
     void deleteComment(Long id, String username);
 
-    CommentResponseDto getCommentById(Long id);
+
 }
 

@@ -41,18 +41,18 @@ public class PostController {
 
     @PostMapping
     @Operation(summary = "Yeni bir gönderi oluştur", description = "Yeni bir gönderi oluşturur ve oluşturulan gönderiyi döndürür")
-    public ResponseEntity<PostResponseDto> createPost(@Valid @RequestBody PostRequestDto postRequestDto, Authentication authentication) {
+    public ResponseEntity<Void> createPost(@Valid @RequestBody PostRequestDto postRequestDto, Authentication authentication) {
         String username = authentication.getName();
-        PostResponseDto result = postService.createPost(postRequestDto, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        postService.createPost(postRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Bir gönderiyi güncelle", description = "Mevcut bir gönderiyi günceller ve güncellenmiş gönderiyi döndürür")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto, Authentication authentication) {
+    public ResponseEntity<Void> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto, Authentication authentication) {
         String username = authentication.getName();
-        PostResponseDto result = postService.updatePost(id, postRequestDto, username);
-        return ResponseEntity.ok(result);
+        postService.updatePost(id, postRequestDto, username);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")

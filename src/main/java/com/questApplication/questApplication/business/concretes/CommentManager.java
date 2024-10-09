@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -45,14 +44,14 @@ public class CommentManager implements CommentService {
     @Override
     public Page<CommentResponseDto> getCommentsByCurrentUser(String username, Pageable pageable) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
-                .orElseThrow(() -> new ResourceNotFoundException ("Kullanıcı bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
         Page<Comment> comments = commentRepository.findByUserIdAndStatusNot(user.getId(), "D", pageable);
         return comments.map(commentMapper::toResponseDto);
     }
 
     @Override
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, String username) {
+    public void createComment(CommentRequestDto commentRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
@@ -64,13 +63,12 @@ public class CommentManager implements CommentService {
         comment.setPost(post);
         comment.setStatus("A");
 
-        Comment savedComment = commentRepository.save(comment);
-        return commentMapper.toResponseDto(savedComment);
+        commentRepository.save(comment);
     }
 
     @Override
     @Transactional
-    public CommentResponseDto updateComment(Long id, CommentRequestDto commentRequestDto, String username) {
+    public void updateComment(Long id, CommentRequestDto commentRequestDto, String username) {
         Comment existingComment = commentRepository.findByIdAndStatusNot(id, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Yorum bulunamadı"));
 
@@ -81,8 +79,7 @@ public class CommentManager implements CommentService {
         existingComment.setText(commentRequestDto.getText());
         existingComment.setStatus("U");
 
-        Comment updatedComment = commentRepository.save(existingComment);
-        return commentMapper.toResponseDto(updatedComment);
+        commentRepository.save(existingComment);
     }
 
     @Override
@@ -92,7 +89,7 @@ public class CommentManager implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Yorum bulunamadı"));
 
         if (!comment.getUser().getUsername().equals(username)) {
-            throw new UnauthorizedException ("Bu yorumu silme yetkiniz yok");
+            throw new UnauthorizedException("Bu yorumu silme yetkiniz yok");
         }
 
         comment.setStatus("D");

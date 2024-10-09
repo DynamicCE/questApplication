@@ -41,10 +41,10 @@ public class LikeController {
 
     @PostMapping
     @Operation(summary = "Yeni bir beğeni oluştur", description = "Yeni bir beğeni oluşturur ve sonucu döndürür")
-    public ResponseEntity<LikeResponseDto> createLike(@RequestBody LikeRequestDto likeRequestDto, Authentication authentication) {
+    public ResponseEntity<Void> createLike(@RequestBody LikeRequestDto likeRequestDto, Authentication authentication) {
         String username = authentication.getName();
-        LikeResponseDto result = likeService.createLike(likeRequestDto, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        likeService.createLike(likeRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/count/{postId}")

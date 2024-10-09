@@ -2,15 +2,17 @@ package com.questApplication.questApplication.business.abstracts;
 
 import com.questApplication.questApplication.core.utilities.result.DataResult;
 import com.questApplication.questApplication.core.utilities.result.Result;
+import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
+import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    DataResult<Page<UserDTO>> getAllUsers(Pageable pageable);
-    DataResult<UserDTO> getUserById(Long id);
-    DataResult<UserDTO> createUser(UserDTO userDTO);
-    DataResult<UserDTO> updateUser(Long id, UserDTO userDTO);
-    Result deleteUser(Long id);
-    DataResult<UserDTO> getUserByUsername(String username);
-    DataResult<UserDTO> activateUser(Long id);
+    Page<UserResponseDto> getAllUsers( Pageable pageable);
+    UserResponseDto getUserById(Long id);
+    UserResponseDto getUserByUsername(String username);
+    void createUser( UserRequestDto userRequestDto);
+    void updateUser(Long id, UserRequestDto UserRequestDto);
+    void deleteUser(Long id);
+    void activateUser(Long id);
 }
