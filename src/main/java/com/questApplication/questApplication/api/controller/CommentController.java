@@ -1,8 +1,6 @@
 package com.questApplication.questApplication.api.controller;
 
 import com.questApplication.questApplication.business.abstracts.CommentService;
-import com.questApplication.questApplication.core.utilities.result.DataResult;
-import com.questApplication.questApplication.core.utilities.result.Result;
 import com.questApplication.questApplication.entity.dto.request.CommentRequestDto;
 import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/v1/comments")
@@ -48,23 +45,23 @@ public class CommentController {
 
     @PostMapping
     @Operation(summary = "Yeni bir yorum oluştur", description = "Yeni bir yorum oluşturur ve oluşturulan yorumu döndürür")
-    public ResponseEntity<CommentResponseDto> createComment(
+    public ResponseEntity<Void> createComment(
             @Valid @RequestBody CommentRequestDto commentRequestDto,
             Authentication authentication) {
         String username = authentication.getName();
-        CommentResponseDto result = commentService.createComment(commentRequestDto, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        commentService.createComment(commentRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Bir yorumu güncelle", description = "Mevcut bir yorumu günceller ve güncellenmiş yorumu döndürür")
-    public ResponseEntity<CommentResponseDto> updateComment(
+    public ResponseEntity<Void> updateComment(
             @PathVariable Long id,
             @Valid @RequestBody CommentRequestDto commentRequestDto,
             Authentication authentication) {
         String username = authentication.getName();
-        CommentResponseDto result = commentService.updateComment(id, commentRequestDto, username);
-        return ResponseEntity.ok(result);
+        commentService.updateComment(id, commentRequestDto, username);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
@@ -84,3 +81,4 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 }
+

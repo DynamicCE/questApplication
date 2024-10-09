@@ -53,7 +53,7 @@ public class PostManager implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto createPost(PostRequestDto postRequestDto, String username) {
+    public void createPost(PostRequestDto postRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
@@ -61,13 +61,12 @@ public class PostManager implements PostService {
         post.setUser(user);
         post.setStatus("A");
 
-        Post savedPost = postRepository.save(post);
-        return postMapper.toResponseDto(savedPost);
+        postRepository.save(post);
     }
 
     @Override
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto postRequestDto, String username) {
+    public void updatePost(Long id, PostRequestDto postRequestDto, String username) {
         Post existingPost = postRepository.findByIdAndStatusNot(id, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
 
@@ -79,8 +78,7 @@ public class PostManager implements PostService {
         existingPost.setText(postRequestDto.getText());
         existingPost.setStatus("U");
 
-        Post updatedPost = postRepository.save(existingPost);
-        return postMapper.toResponseDto(updatedPost);
+        postRepository.save(existingPost);
     }
 
     @Override

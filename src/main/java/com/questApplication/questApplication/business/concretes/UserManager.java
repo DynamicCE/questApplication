@@ -3,6 +3,8 @@ package com.questApplication.questApplication.business.concretes;
 import com.questApplication.questApplication.business.abstracts.UserService;
 import com.questApplication.questApplication.core.utilities.result.*;
 import com.questApplication.questApplication.entity.User;
+import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
+import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
 import com.questApplication.questApplication.mapper.UserMapper;
 import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,129 +28,46 @@ public class UserManager implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
     @Override
-    public DataResult<Page<UserDTO>> getAllUsers(Pageable pageable) {
-        try {
-            Page<User> users = userRepository.findAllByStatusNot("D", pageable);
-            Page<UserDTO> userDTOs = users.map(userMapper::toDTO);
-            return new SuccessDataResult<>(userDTOs, "Kullanıcılar başarıyla getirildi");
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcılar getirilirken bir hata oluştu");
-        }
+    public
+    Page<UserResponseDto> getAllUsers ( Pageable pageable ) {
+        return null;
     }
 
     @Override
-    public DataResult<UserDTO> getUserById(Long id) {
-        try {
-            User user = userRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (user != null) {
-                UserDTO userDTO = userMapper.toDTO(user);
-                return new SuccessDataResult<>(userDTO, "Kullanıcı başarıyla getirildi");
-            } else {
-                return new ErrorDataResult<>(null, "Kullanıcı bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı getirilirken bir hata oluştu");
-        }
+    public
+    UserResponseDto getUserById ( Long id ) {
+        return null;
     }
 
     @Override
-    @Transactional
-    public DataResult<UserDTO> createUser(UserDTO userDTO) {
-        try {
-            if (userRepository.existsByUsername(userDTO.getUsername())) {
-                return new ErrorDataResult<>(null, "Bu kullanıcı adı zaten kullanılıyor");
-            }
-
-            User user = userMapper.toEntity(userDTO);
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            user.setStatus("A"); // Active
-            User savedUser = userRepository.save(user);
-            UserDTO savedUserDTO = userMapper.toDTO(savedUser);
-            return new SuccessDataResult<>(savedUserDTO, "Kullanıcı başarıyla oluşturuldu");
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı oluşturulurken bir hata oluştu");
-        }
+    public
+    UserResponseDto getUserByUsername ( String username ) {
+        return null;
     }
 
     @Override
-    @Transactional
-    public DataResult<UserDTO> updateUser(Long id, UserDTO userDTO) {
-        try {
-            User existingUser = userRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (existingUser != null) {
-                User updatedUser = userMapper.toEntity(userDTO);
-                updatedUser.setId(id);
-                updatedUser.setStatus("U");
+    public
+    void createUser ( UserRequestDto userRequestDto ) {
 
-                if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
-                    updatedUser.setPassword(existingUser.getPassword());
-                } else {
-                    updatedUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-                }
-
-                User savedUser = userRepository.save(updatedUser);
-                UserDTO savedUserDTO = userMapper.toDTO(savedUser);
-                return new SuccessDataResult<>(savedUserDTO, "Kullanıcı başarıyla güncellendi");
-            } else {
-                return new ErrorDataResult<>(null, "Güncellenecek kullanıcı bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı güncellenirken bir hata oluştu");
-        }
     }
 
     @Override
-    @Transactional
-    public Result deleteUser(Long id) {
-        try {
-            User user = userRepository.findByIdAndStatusNot(id, "D").orElse(null);
-            if (user != null) {
-                user.setStatus("D");
-                userRepository.save(user);
-                return new SuccessResult("Kullanıcı başarıyla silindi");
-            } else {
-                return new ErrorResult("Silinecek kullanıcı bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorResult("Kullanıcı silinirken bir hata oluştu");
-        }
+    public
+    void updateUser ( Long id, UserRequestDto UserRequestDto ) {
+
     }
 
     @Override
-    public DataResult<UserDTO> getUserByUsername(String username) {
-        try {
-            User user = userRepository.findByUsernameAndStatusNot(username, "D").orElse(null);
-            if (user != null) {
-                UserDTO userDTO = userMapper.toDTO(user);
-                return new SuccessDataResult<>(userDTO, "Kullanıcı başarıyla getirildi");
-            } else {
-                return new ErrorDataResult<>(null, "Kullanıcı bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı getirilirken bir hata oluştu");
-        }
+    public
+    void deleteUser ( Long id ) {
+
     }
 
     @Override
-    @Transactional
-    public DataResult<UserDTO> activateUser(Long id) {
-        try {
-            User user = userRepository.findById(id).orElse(null);
-            if (user != null) {
-                if (!user.getStatus().equals("A")) {
-                    user.setStatus("A");
-                    User savedUser = userRepository.save(user);
-                    UserDTO activatedUserDTO = userMapper.toDTO(savedUser);
-                    return new SuccessDataResult<>(activatedUserDTO, "Kullanıcı başarıyla aktifleştirildi");
-                } else {
-                    return new ErrorDataResult<>(null, "Kullanıcı zaten aktif");
-                }
-            } else {
-                return new ErrorDataResult<>(null, "Aktifleştirilecek kullanıcı bulunamadı");
-            }
-        } catch (Exception e) {
-            return new ErrorDataResult<>(null, "Kullanıcı aktifleştirilirken bir hata oluştu");
-        }
+    public
+    void activateUser ( Long id ) {
+
     }
 }

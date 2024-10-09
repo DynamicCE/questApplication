@@ -9,7 +9,7 @@ public interface PostService {
     Page<PostResponseDto> getAllPosts(Pageable pageable);
     PostResponseDto getPostById(Long id);
     Page<PostResponseDto> getPostsByUser(String username, Pageable pageable);
-    PostResponseDto createPost(PostRequestDto postRequestDto, String username);
-    PostResponseDto updatePost(Long id, PostRequestDto postRequestDto, String username);
+    void createPost(PostRequestDto postRequestDto, String username);
+    void updatePost(Long id, PostRequestDto postRequestDto, String username);
     void deletePost(Long id, String username);
 }

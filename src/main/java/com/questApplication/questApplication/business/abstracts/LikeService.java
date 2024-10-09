@@ -10,7 +10,7 @@ public interface LikeService {
 
     Page<LikeResponseDto> getLikesByPostId(Long postId, Pageable pageable);
 
-    LikeResponseDto createLike(LikeRequestDto likeRequestDto, String username);
+    void createLike(LikeRequestDto likeRequestDto, String username);
 
     long getLikeCountForPost(Long postId);
 }

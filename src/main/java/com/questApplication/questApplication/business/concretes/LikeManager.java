@@ -49,7 +49,7 @@ public class LikeManager implements LikeService {
 
     @Override
     @Transactional
-    public LikeResponseDto createLike(LikeRequestDto likeRequestDto, String username) {
+    public void createLike(LikeRequestDto likeRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
@@ -64,8 +64,7 @@ public class LikeManager implements LikeService {
         like.setUser(user);
         like.setPost(post);
 
-        Like savedLike = likeRepository.save(like);
-        return likeMapper.toResponseDto(savedLike);
+        likeRepository.save(like);
     }
 
     @Override
