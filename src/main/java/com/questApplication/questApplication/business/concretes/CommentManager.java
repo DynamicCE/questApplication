@@ -53,9 +53,9 @@ public class CommentManager implements CommentService {
     @Transactional
     public void createComment(CommentRequestDto commentRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
-                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı")); // yönetici tarafından silindigi halde oturum açık kalmışken işlem yapamaması için.
 
-        Post post = postRepository.findByIdAndStatusNot(commentRequestDto.getPostId(), "D")
+        Post post = postRepository.findByIdAndStatusNot(commentRequestDto.getPostId(), "D") // yorum yapılacak gönderi silindiyse.
                 .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
 
         Comment comment = commentMapper.toEntity(commentRequestDto);

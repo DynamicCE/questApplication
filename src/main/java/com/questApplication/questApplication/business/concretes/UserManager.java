@@ -31,12 +31,6 @@ public class UserManager implements UserService {
 
     @Override
     public
-    Page<UserResponseDto> getAllUsers ( Pageable pageable ) {
-        return null;
-    }
-
-    @Override
-    public
     UserResponseDto getUserById ( Long id ) {
         return null;
     }
@@ -55,19 +49,19 @@ public class UserManager implements UserService {
 
     @Override
     public
-    void updateUser ( Long id, UserRequestDto UserRequestDto ) {
+    void updateUser ( Long id, UserRequestDto UserRequestDto, String username ) {
 
     }
 
     @Override
     public
-    void deleteUser ( Long id ) {
+    void deleteUser ( Long id, String username ) {
 
     }
 
     @Override
     public
-    void activateUser ( Long id ) {
+    void activateUser ( Long id, String username ) {
 
     }
 }

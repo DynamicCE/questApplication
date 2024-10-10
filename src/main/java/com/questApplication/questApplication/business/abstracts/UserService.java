@@ -8,11 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    Page<UserResponseDto> getAllUsers( Pageable pageable);
     UserResponseDto getUserById(Long id);
     UserResponseDto getUserByUsername(String username);
     void createUser( UserRequestDto userRequestDto);
-    void updateUser(Long id, UserRequestDto UserRequestDto);
-    void deleteUser(Long id);
-    void activateUser(Long id);
+    void updateUser(Long id, UserRequestDto UserRequestDto,String username);
+    void deleteUser(Long id,String username);
+    void activateUser(Long id,String username);
 }
