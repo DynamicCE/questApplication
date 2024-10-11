@@ -1,6 +1,6 @@
 package com.questApplication.questApplication.core.utilities.jwt;
 
-import com.questApplication.questApplication.business.concretes.CustomUserDetailsService;
+import com.questApplication.questApplication.business.concretes.CustomUserDetailsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,16 +18,16 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsManager userDetailsService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsManager userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
-    protected  doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 

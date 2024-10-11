@@ -5,12 +5,16 @@ import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
 import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -36,14 +40,16 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody UserRequestDto request) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-
+            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
             String token = jwtUtil.generateToken(request.getUsername());
-            return ResponseEntity.ok().body(token);
+            Map<String, String> response = new HashMap<> ();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body("Geçersiz Kimlik Bilgileri");
+            return ResponseEntity.status( HttpStatus.UNAUTHORIZED).body("Geçersiz Kimlik Bilgileri");
         }
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequestDto request) {

@@ -24,6 +24,10 @@ public class User {
     String password;
     String status;
 
+    @Column(name = "role")
+    private String role;
+
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts;
 

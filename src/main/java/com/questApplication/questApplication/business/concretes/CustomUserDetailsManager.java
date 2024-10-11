@@ -7,12 +7,13 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsManager implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public CustomUserDetailsService(UserRepository userRepository) {
+    public
+    CustomUserDetailsManager ( UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -24,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .roles("USER") // Gereksinimlerinize göre rolleri ayarlayın
+                .roles(user.getRole())
                 .build();
     }
 }

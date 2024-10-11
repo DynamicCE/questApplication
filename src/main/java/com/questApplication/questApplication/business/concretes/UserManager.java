@@ -42,7 +42,6 @@ public class UserManager implements UserService {
         return userMapper.toResponseDto(user);
     }
 
-    @Override
     public void createUser(UserRequestDto userRequestDto) {
         if (userRepository.existsByUsername(userRequestDto.getUsername())) {
             throw new IllegalArgumentException("Kullanıcı adı zaten alınmış");
@@ -51,8 +50,10 @@ public class UserManager implements UserService {
         User user = userMapper.toEntity(userRequestDto);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         user.setStatus("A"); // Aktif durum
+        user.setRole("USER");
         userRepository.save(user);
     }
+
 
     @Override
     public void updateUser(Long id, UserRequestDto userRequestDto, String username) {

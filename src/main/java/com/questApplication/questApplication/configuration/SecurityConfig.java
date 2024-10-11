@@ -1,11 +1,11 @@
 package com.questApplication.questApplication.configuration;
-import com.questApplication.questApplication.business.concretes.CustomUserDetailsService;
+import com.questApplication.questApplication.business.concretes.CustomUserDetailsManager;
 import com.questApplication.questApplication.core.utilities.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.*;
-import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,12 +16,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsManager userDetailsService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter, CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, CustomUserDetailsManager userDetailsService) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
     }
