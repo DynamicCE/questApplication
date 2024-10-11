@@ -4,6 +4,9 @@ import com.questApplication.questApplication.entity.dto.request.CommentRequestDt
 import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
 
 public interface CommentService {
 

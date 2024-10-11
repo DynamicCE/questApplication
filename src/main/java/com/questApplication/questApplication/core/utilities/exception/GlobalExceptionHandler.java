@@ -96,6 +96,7 @@ public class GlobalExceptionHandler {
         error.setErrorCode("RUNTIME_EXCEPTION");
         error.setErrorMessage(ex.getMessage());
         error.setTimestamp(LocalDateTime.now());
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 

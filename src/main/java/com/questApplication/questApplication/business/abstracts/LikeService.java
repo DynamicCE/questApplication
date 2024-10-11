@@ -4,6 +4,9 @@ import com.questApplication.questApplication.entity.dto.request.LikeRequestDto;
 import com.questApplication.questApplication.entity.dto.response.LikeResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
 
 public interface LikeService {
     Page<LikeResponseDto> getAllLikes(Pageable pageable);

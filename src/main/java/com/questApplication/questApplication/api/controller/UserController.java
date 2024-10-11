@@ -31,54 +31,6 @@ class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Id'ye göre kullanıcı bulma")
-    public
-    ResponseEntity<UserResponseDto> getUserById ( @PathVariable Long id ) {
-        UserResponseDto result = userService.getUserById ( id );
-        return ResponseEntity.ok ( result );
-    }
 
-    @GetMapping("/username/{username}")
-    @Operation(summary = "Kullanıcı adına göre aratma")
-    public
-    ResponseEntity<UserResponseDto> getUserByUsername ( String username ) {
-        UserResponseDto result = userService.getUserByUsername ( username );
-        return ResponseEntity.ok ( result );
-    }
-
-    @PostMapping()
-    @Operation(summary = "Profil oluşturma")
-    public
-    ResponseEntity<Void> createUser ( @Valid @RequestBody UserRequestDto userRequestDto ) {
-        userService.createUser ( userRequestDto );
-        return ResponseEntity.status ( HttpStatus.CREATED ).build ( );
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Profil Güncelleme")
-    public
-    ResponseEntity<Void> updateUser ( Long id, UserRequestDto UserRequestDto ) {
-        userService.updateUser ( id, UserRequestDto );
-        return ResponseEntity.ok ( ).build ( );
-    }
-
-    @PostMapping("/{id}")
-    @Operation(summary = "Profili Sil")
-    public
-    ResponseEntity<Void> deleteUser ( @PathVariable Long id, Authentication authentication ) {
-        String username = authentication.getName ( );
-        userService.deleteUser ( id,username );
-        return ResponseEntity.noContent ( ).build ( );
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Profili Aktive Et")
-    public
-    ResponseEntity<Void> activateUser ( @PathVariable Long id, Authentication authentication ) {
-        String username = authentication.getName ( );
-        userService.activateUser ( id );
-        return ResponseEntity.noContent ( ).build ( );
-    }
 
 }
