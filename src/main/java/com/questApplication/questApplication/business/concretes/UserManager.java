@@ -1,7 +1,8 @@
 package com.questApplication.questApplication.business.concretes;
 
 import com.questApplication.questApplication.business.abstracts.UserService;
-import com.questApplication.questApplication.core.utilities.result.*;
+import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
+import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
 import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserManager implements UserService {
@@ -28,40 +28,76 @@ public class UserManager implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
     @Override
-    public
-    UserResponseDto getUserById ( Long id ) {
-        return null;
+    public UserResponseDto getUserById(Long id) {
+        User user = userRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+        return userMapper.toResponseDto(user);
     }
 
     @Override
-    public
-    UserResponseDto getUserByUsername ( String username ) {
-        return null;
+    public UserResponseDto getUserByUsername(String username) {
+        User user = userRepository.findByUsernameAndStatusNot(username, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+        return userMapper.toResponseDto(user);
     }
 
     @Override
-    public
-    void createUser ( UserRequestDto userRequestDto ) {
+    public void createUser(UserRequestDto userRequestDto) {
+        if (userRepository.existsByUsername(userRequestDto.getUsername())) {
+            throw new IllegalArgumentException("Kullanıcı adı zaten alınmış");
+        }
 
+        User user = userMapper.toEntity(userRequestDto);
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setStatus("A"); // Aktif durum
+        userRepository.save(user);
     }
 
     @Override
-    public
-    void updateUser ( Long id, UserRequestDto UserRequestDto, String username ) {
+    public void updateUser(Long id, UserRequestDto userRequestDto, String username) {
+        User existingUser = userRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
+        if (!existingUser.getUsername().equals(username)) {
+            throw new UnauthorizedException("Bu kullanıcıyı güncelleme yetkiniz yok");
+        }
+
+        existingUser.setUsername(userRequestDto.getUsername());
+        existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        existingUser.setStatus("U"); // Güncellenmiş durum
+        userRepository.save(existingUser);
     }
 
     @Override
-    public
-    void deleteUser ( Long id, String username ) {
+    public void deleteUser(Long id, String username) {
+        User user = userRepository.findByIdAndStatusNot(id, "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
+        if (!user.getUsername().equals(username)) {
+            throw new UnauthorizedException("Bu kullanıcıyı silme yetkiniz yok");
+        }
+
+        user.setStatus("D"); // Silinmiş durum
+        userRepository.save(user);
     }
 
     @Override
-    public
-    void activateUser ( Long id, String username ) {
+    public void activateUser(Long id, String username) {
+        User user = userRepository.findByIdAndStatusNot(id, "A")
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı veya zaten aktif"));
 
+        if (!user.getUsername().equals(username)) {
+            throw new UnauthorizedException("Bu kullanıcıyı aktifleştirme yetkiniz yok");
+        }
+
+        user.setStatus("A"); // Aktif durum
+        userRepository.save(user);
+    }
+
+    @Override
+    public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAllByStatusNot("D", pageable);
+        return users.map(userMapper::toResponseDto);
     }
 }

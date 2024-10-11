@@ -17,7 +17,10 @@ public class User {
     @Column(name = "id")
     Long id;
 
+    @Column(name = "username",unique = true)
     String username;
+
+    @Column(name = "password")
     String password;
     String status;
 
