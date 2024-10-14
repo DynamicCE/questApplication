@@ -2,6 +2,7 @@ package com.questApplication.questApplication.core.utilities.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class JwtUtil {
                 .sign(Algorithm.HMAC256(SECRET_KEY));
     }
 
-    public String validateTokenAndGetUsername(String token) {
+    public String validateTokenAndGetUsername(String token) throws JWTVerificationException {
         return JWT.require(Algorithm.HMAC256(SECRET_KEY))
                 .build()
                 .verify(token)

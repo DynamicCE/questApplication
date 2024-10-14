@@ -40,7 +40,7 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody UserRequestDto request) {
         try {
             authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
             String token = jwtUtil.generateToken(request.getUsername());
             Map<String, String> response = new HashMap<> ();
             response.put("token", token);
@@ -49,7 +49,6 @@ public class AuthController {
             return ResponseEntity.status( HttpStatus.UNAUTHORIZED).body("Geçersiz Kimlik Bilgileri");
         }
     }
-
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequestDto request) {
@@ -61,6 +60,7 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setStatus("A"); // Aktif durum
+        user.setRole("USER");
         userRepository.save(user);
 
         return ResponseEntity.ok("Kullanıcı başarıyla kaydedildi");

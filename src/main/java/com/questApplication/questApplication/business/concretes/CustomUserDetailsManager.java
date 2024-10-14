@@ -6,14 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 @Service
 public class CustomUserDetailsManager implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public
-    CustomUserDetailsManager ( UserRepository userRepository) {
+    public CustomUserDetailsManager ( UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -26,6 +27,10 @@ public class CustomUserDetailsManager implements UserDetailsService {
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .roles(user.getRole())
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
                 .build();
     }
 }

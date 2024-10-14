@@ -1,5 +1,6 @@
 package com.questApplication.questApplication.core.utilities.jwt;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.questApplication.questApplication.business.concretes.CustomUserDetailsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
@@ -39,8 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             token = header.substring(7);
             try {
                 username = jwtUtil.validateTokenAndGetUsername(token);
-            } catch (Exception e) {
-
+            } catch (JWTVerificationException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Geçersiz veya süresi dolmuş token");
+                return;
             }
         }
 

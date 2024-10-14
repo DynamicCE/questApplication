@@ -5,11 +5,12 @@ import com.questApplication.questApplication.entity.dto.request.LikeRequestDto;
 import com.questApplication.questApplication.entity.dto.response.LikeResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +20,7 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    public LikeController(LikeService likeService) {
+    public LikeController(LikeService likeService ) {
         this.likeService = likeService;
     }
 
@@ -41,8 +42,9 @@ public class LikeController {
 
     @PostMapping
     @Operation(summary = "Yeni bir beğeni oluştur", description = "Yeni bir beğeni oluşturur ve sonucu döndürür")
-    public ResponseEntity<Void> createLike(@RequestBody LikeRequestDto likeRequestDto, Authentication authentication) {
-        String username = authentication.getName();
+    public ResponseEntity<Void> createLike(@Valid @RequestBody LikeRequestDto likeRequestDto,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
         likeService.createLike(likeRequestDto, username);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -1,4 +1,5 @@
 package com.questApplication.questApplication.configuration;
+
 import com.questApplication.questApplication.business.concretes.CustomUserDetailsManager;
 import com.questApplication.questApplication.core.utilities.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -32,12 +33,11 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
+                .authorizeRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
