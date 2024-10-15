@@ -42,6 +42,13 @@ public class CommentManager implements CommentService {
     }
 
     @Override
+    public
+    Page<CommentResponseDto> getCommentsByCommentId ( Long commentId, Pageable pageable ) {
+        Page<Comment> comments = commentRepository.findByIdAndStatusNot(commentId, "D", pageable);
+        return comments.map(commentMapper::toResponseDto);
+    }
+
+    @Override
     public Page<CommentResponseDto> getCommentsByCurrentUser(String username, Pageable pageable) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
@@ -57,6 +64,11 @@ public class CommentManager implements CommentService {
 
         Post post = postRepository.findByIdAndStatusNot(commentRequestDto.getPostId(), "D") // yorum yapılacak gönderi silindiyse.
                 .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
+
+        Comment parentComment = null;
+        if(commentRequestDto.getParentCommentId ()!=null){ // yorum yapılacak yorum silindiyse.
+            parentComment = commentRepository.findByIdAndStatusNot ( parentComment.getId (),"D" ).orElseThrow ( ()-> new ResourceNotFoundException("Yorum Bulunamadı") );
+        }
 
         Comment comment = commentMapper.toEntity(commentRequestDto);
         comment.setUser(user);
@@ -94,12 +106,5 @@ public class CommentManager implements CommentService {
 
         comment.setStatus("D");
         commentRepository.save(comment);
-    }
-
-    @Override
-    public CommentResponseDto getCommentById(Long id) {
-        Comment comment = commentRepository.findByIdAndStatusNot(id, "D")
-                .orElseThrow(() -> new ResourceNotFoundException("Yorum bulunamadı"));
-        return commentMapper.toResponseDto(comment);
     }
 }

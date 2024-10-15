@@ -1,27 +1,23 @@
 package com.questApplication.questApplication.entity.dto.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CommentRequestDto {
-    @NotNull(message = "Yorum metni boş olamaz")
+    @NotNull
     private String text;
 
-    @NotNull(message = "Gönderi ID'si boş olamaz")
     private Long postId;
 
-    public String getText() {
-        return text;
+    private Long parentCommentId;
+
+    @AssertTrue(message = "Post ID veya Parent Comment ID'den en az biri dolu olmalıdır")
+    public boolean isValid(Long postId,Long commentId){
+        return postId != null || commentId != null;
     }
 
-    public Long getPostId() {
-        return postId;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
 }

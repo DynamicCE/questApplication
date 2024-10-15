@@ -1,84 +1,58 @@
 package com.questApplication.questApplication.api.controller;
 
 import com.questApplication.questApplication.business.abstracts.CommentService;
+import com.questApplication.questApplication.entity.Comment;
 import com.questApplication.questApplication.entity.dto.request.CommentRequestDto;
 import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/comments")
-@Tag(name = "Yorum Denetleyicisi", description = "Yorum işlemlerini yönetir")
-public class CommentController {
+public class CommentController{
 
-    private final CommentService commentService;
+    private
+    final CommentService commentService;
 
-    public CommentController(CommentService commentService) {
+    public
+    CommentController ( CommentService commentService ) {
         this.commentService = commentService;
     }
 
     @GetMapping("/post/{postId}")
-    @Operation(summary = "Gönderi ID'sine göre yorumları getir", description = "Belirli bir gönderiye ait sayfalanmış yorumları getirir")
-    public ResponseEntity<Page<CommentResponseDto>> getCommentsByPostId(
-            @PathVariable Long postId,
-            Pageable pageable) {
-        Page<CommentResponseDto> result = commentService.getCommentsByPostId(postId, pageable);
-        return ResponseEntity.ok(result);
+    @Operation(summary = "Post yorumlarını getirir")
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByPostId( @PathVariable Long id , Pageable pageable){
+        Page<CommentResponseDto> comments = commentService.getCommentsByPostId ( id ,pageable);
+        return ResponseEntity.ok ( comments );
     }
-
-    @GetMapping("/user")
-    @Operation(summary = "Oturum açmış kullanıcının yorumlarını getir", description = "Oturum açmış kullanıcının yorumlarını sayfalanmış şekilde getirir")
-    public ResponseEntity<Page<CommentResponseDto>> getCommentsByCurrentUser(
-            Pageable pageable,
-            Authentication authentication) {
-        String username = authentication.getName();
-        Page<CommentResponseDto> result = commentService.getCommentsByCurrentUser(username, pageable);
-        return ResponseEntity.ok(result);
+    @Operation(summary = "Yorumlara yapılan yorumları getirir")
+    @GetMapping("/{commentId}")
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByCommentId(@PathVariable Long id,Pageable pageable){
+        Page<CommentResponseDto> comments = commentService.getCommentsByCommentId ( id ,pageable);
+        return ResponseEntity.ok ( comments );
     }
 
     @PostMapping
-    @Operation(summary = "Yeni bir yorum oluştur", description = "Yeni bir yorum oluşturur ve oluşturulan yorumu döndürür")
-    public ResponseEntity<Void> createComment(
-            @Valid @RequestBody CommentRequestDto commentRequestDto,
-            Authentication authentication) {
-        String username = authentication.getName();
-        commentService.createComment(commentRequestDto, username);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @Operation(summary = "Yorum oluşturur")
+    public ResponseEntity<Void> CreateComment( @RequestBody CommentRequestDto commentRequestDto, String username ){
+    commentService.createComment ( commentRequestDto,username );
+    return ResponseEntity.ok ().build ();
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Bir yorumu güncelle", description = "Mevcut bir yorumu günceller ve güncellenmiş yorumu döndürür")
-    public ResponseEntity<Void> updateComment(
-            @PathVariable Long id,
-            @Valid @RequestBody CommentRequestDto commentRequestDto,
-            Authentication authentication) {
-        String username = authentication.getName();
-        commentService.updateComment(id, commentRequestDto, username);
-        return ResponseEntity.ok().build();
+    @PutMapping("{id}")
+    @Operation(summary = "Yorum Günceller")
+    public ResponseEntity<Void> updateComment(@PathVariable Long id,@RequestBody CommentRequestDto commentRequestDto,String username){
+        commentService.updateComment ( id,commentRequestDto,username );
+        return ResponseEntity.ok ().build ();
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Bir yorumu sil", description = "Bir yorumu ID'sine göre siler")
-    public ResponseEntity<Void> deleteComment(
-            @PathVariable Long id,
-            Authentication authentication) {
-        String username = authentication.getName();
-        commentService.deleteComment(id, username);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "ID'ye göre yorum getir", description = "Belirli bir yorumu ID'sine göre getirir")
-    public ResponseEntity<CommentResponseDto> getCommentById(@PathVariable Long id) {
-        CommentResponseDto result = commentService.getCommentById(id);
-        return ResponseEntity.ok(result);
+    @DeleteMapping("{id}")
+    @Operation(summary = "Yorumu Siler")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id,String username){
+        commentService.deleteComment ( id,username );
+        return ResponseEntity.ok ().build ();
     }
 }
-
