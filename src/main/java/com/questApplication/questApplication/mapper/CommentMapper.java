@@ -5,9 +5,8 @@ import com.questApplication.questApplication.entity.dto.request.CommentRequestDt
 import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class, PostMapper.class})
 public interface CommentMapper {
-
     Comment toEntity(CommentRequestDto commentRequestDto);
 
     CommentResponseDto toResponseDto(Comment comment);

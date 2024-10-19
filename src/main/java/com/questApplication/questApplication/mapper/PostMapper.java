@@ -8,9 +8,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface PostMapper {
-
-    @Mapping(target = "user", ignore = true) // Kullanıcı servisten alınacak, bu yüzden map edilmiyor
     Post toEntity(PostRequestDto postRequestDto);
 
     PostResponseDto toResponseDto(Post post);
 }
+

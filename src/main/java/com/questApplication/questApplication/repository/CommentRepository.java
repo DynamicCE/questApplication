@@ -15,4 +15,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByUserIdAndStatusNot(Long userId, String status, Pageable pageable);
     Optional<Comment> findByIdAndStatusNot(Long id, String status);
 
+    boolean existsByIdAndStatusNot ( Long commentId, String d );
 }

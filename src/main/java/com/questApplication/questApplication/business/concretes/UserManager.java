@@ -49,7 +49,7 @@ public class UserManager implements UserService {
 
         User user = userMapper.toEntity(userRequestDto);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        user.setStatus("A"); // Aktif durum
+        user.setStatus("A");
         user.setRole("USER");
         userRepository.save(user);
     }
@@ -66,7 +66,7 @@ public class UserManager implements UserService {
 
         existingUser.setUsername(userRequestDto.getUsername());
         existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        existingUser.setStatus("U"); // Güncellenmiş durum
+        existingUser.setStatus("U");
         userRepository.save(existingUser);
     }
 
@@ -79,7 +79,7 @@ public class UserManager implements UserService {
             throw new UnauthorizedException("Bu kullanıcıyı silme yetkiniz yok");
         }
 
-        user.setStatus("D"); // Silinmiş durum
+        user.setStatus("D");
         userRepository.save(user);
     }
 
@@ -92,7 +92,7 @@ public class UserManager implements UserService {
             throw new UnauthorizedException("Bu kullanıcıyı aktifleştirme yetkiniz yok");
         }
 
-        user.setStatus("A"); // Aktif durum
+        user.setStatus("A");
         userRepository.save(user);
     }
 

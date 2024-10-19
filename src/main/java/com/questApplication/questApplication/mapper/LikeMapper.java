@@ -6,13 +6,10 @@ import com.questApplication.questApplication.entity.dto.response.LikeResponseDto
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, PostMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, PostMapper.class, CommentMapper.class})
 public interface LikeMapper {
-
-    @Mapping(target = "user", ignore = true) // Kullanıcı bilgisi oturumdan alınacak
-    @Mapping(target = "post", ignore = true) // Post bilgisi servisten alınacak
-    @Mapping(target = "comment", ignore = true) // Yorum bilgisini servisten alınacak
     Like toEntity(LikeRequestDto likeRequestDto);
 
     LikeResponseDto toResponseDto(Like like);
 }
+

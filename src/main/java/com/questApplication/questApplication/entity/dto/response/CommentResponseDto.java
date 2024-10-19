@@ -8,6 +8,9 @@ public class CommentResponseDto {
     private LocalDateTime createdAt;
     private UserResponseDto user;
     private Long postId;
+    private int likeCount;
+    private boolean likedByCurrentUser;
+
 
     public Long getId() {
         return id;
@@ -47,5 +50,23 @@ public class CommentResponseDto {
 
     public void setPostId(Long postId) {
         this.postId = postId;
+    }
+
+    public
+    int getLikeCount () {
+        return likeCount;
+    }
+
+    public
+    void setLikeCount ( int likeCount ) {
+        this.likeCount = likeCount;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
+
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 }

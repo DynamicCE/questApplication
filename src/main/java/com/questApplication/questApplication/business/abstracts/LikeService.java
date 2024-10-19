@@ -13,7 +13,13 @@ public interface LikeService {
 
     Page<LikeResponseDto> getLikesByPostId(Long postId, Pageable pageable);
 
+    Page<LikeResponseDto> getLikesByCommentId(Long commentId, Pageable pageable);
+
     void createLike(LikeRequestDto likeRequestDto, String username);
 
     long getLikeCountForPost(Long postId);
+
+    void deleteLike(Long id, String username);
+
+    void toggleLike(LikeRequestDto likeRequestDto, String username);
 }

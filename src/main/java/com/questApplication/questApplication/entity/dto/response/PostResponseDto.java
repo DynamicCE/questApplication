@@ -8,44 +8,74 @@ public class PostResponseDto {
     private String text;
     private LocalDateTime createdAt;
     private UserResponseDto user;
+    private int likeCount;
+    private boolean likedByCurrentUser;
 
-    public Long getId() {
+    public
+    Long getId () {
         return id;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public UserResponseDto getUser() {
-        return user;
-    }
-
-    public void setId(Long id) {
+    public
+    void setId ( Long id ) {
         this.id = id;
     }
 
-    public void setTitle(String title) {
+    public
+    String getTitle () {
+        return title;
+    }
+
+    public
+    void setTitle ( String title ) {
         this.title = title;
     }
 
-    public void setText(String text) {
+    public
+    String getText () {
+        return text;
+    }
+
+    public
+    void setText ( String text ) {
         this.text = text;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public
+    LocalDateTime getCreatedAt () {
+        return createdAt;
+    }
+
+    public
+    void setCreatedAt ( LocalDateTime createdAt ) {
         this.createdAt = createdAt;
     }
 
-    public void setUser(UserResponseDto user) {
+    public
+    UserResponseDto getUser () {
+        return user;
+    }
+
+    public
+    void setUser ( UserResponseDto user ) {
         this.user = user;
+    }
+
+    public
+    int getLikeCount () {
+        return likeCount;
+    }
+
+    public
+    void setLikeCount ( int likeCount ) {
+        this.likeCount = likeCount;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
+
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 }
