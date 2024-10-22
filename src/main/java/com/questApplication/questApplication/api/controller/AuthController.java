@@ -1,14 +1,11 @@
 package com.questApplication.questApplication.api.controller;
 
 import com.questApplication.questApplication.core.utilities.jwt.JwtUtil;
-import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
-import com.questApplication.questApplication.repository.UserRepository;
+import com.questApplication.questApplication.business.abstracts.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -21,48 +18,31 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager,
-                          UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil) {
+            UserService userService,
+            JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserRequestDto request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            String token = jwtUtil.generateToken(request.getUsername());
-            Map<String, String> response = new HashMap<> ();
-            response.put("token", token);
-            return ResponseEntity.ok(response);
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status( HttpStatus.UNAUTHORIZED).body("Geçersiz Kimlik Bilgileri");
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        String token = jwtUtil.generateToken(request.getUsername());
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequestDto request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Kullanıcı adı zaten alınmış");
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setStatus("A"); // Aktif durum
-        user.setRole("USER");
-        userRepository.save(user);
-
+        userService.createUser(request);
         return ResponseEntity.ok("Kullanıcı başarıyla kaydedildi");
     }
 }

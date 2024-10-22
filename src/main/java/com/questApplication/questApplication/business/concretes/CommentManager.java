@@ -66,13 +66,15 @@ public class CommentManager implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
 
         Comment parentComment = null;
-        if(commentRequestDto.getParentCommentId ()!=null){ // yorum yapılacak yorum silindiyse.
-            parentComment = commentRepository.findByIdAndStatusNot ( parentComment.getId (),"D" ).orElseThrow ( ()-> new ResourceNotFoundException("Yorum Bulunamadı") );
+        if(commentRequestDto.getParentCommentId() != null) {
+            parentComment = commentRepository.findByIdAndStatusNot(commentRequestDto.getParentCommentId(), "D")
+                .orElseThrow(() -> new ResourceNotFoundException("Üst yorum bulunamadı"));
         }
 
         Comment comment = commentMapper.toEntity(commentRequestDto);
         comment.setUser(user);
         comment.setPost(post);
+        comment.setParentComment(parentComment); 
         comment.setStatus("A");
 
         commentRepository.save(comment);

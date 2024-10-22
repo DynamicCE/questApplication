@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request, HandlerMethod handlerMethod) {
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request,
+            HandlerMethod handlerMethod) {
         String methodName = handlerMethod.getMethod().getName();
         String className = handlerMethod.getBeanType().getSimpleName();
         String requestDescription = request.getDescription(false);
@@ -36,7 +37,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, WebRequest request, HandlerMethod handlerMethod) {
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, WebRequest request,
+            HandlerMethod handlerMethod) {
         String methodName = handlerMethod.getMethod().getName();
         String className = handlerMethod.getBeanType().getSimpleName();
         String requestDescription = request.getDescription(false);
@@ -52,7 +54,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request, HandlerMethod handlerMethod) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex,
+            WebRequest request, HandlerMethod handlerMethod) {
         String methodName = handlerMethod.getMethod().getName();
         String className = handlerMethod.getBeanType().getSimpleName();
         String requestDescription = request.getDescription(false);
@@ -75,7 +78,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, WebRequest request, HandlerMethod handlerMethod) {
+    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, WebRequest request,
+            HandlerMethod handlerMethod) {
         String methodName = handlerMethod.getMethod().getName();
         String className = handlerMethod.getBeanType().getSimpleName();
         String requestDescription = request.getDescription(false);
@@ -100,4 +104,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ErrorResponse error = new ErrorResponse();
+        error.setErrorCode("ILLEGAL_ARGUMENT");
+        error.setErrorMessage(ex.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }

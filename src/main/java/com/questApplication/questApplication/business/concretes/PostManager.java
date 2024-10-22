@@ -13,18 +13,29 @@ import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class PostManager implements PostService {
 
+    private final RedisTemplate<String, List<Post>> redisTemplate;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final UserRepository userRepository;
 
     @Autowired
-    public PostManager(PostRepository postRepository, PostMapper postMapper, UserRepository userRepository) {
+    public PostManager(RedisTemplate<String, List<Post>> redisTemplate,
+                       PostRepository postRepository,
+                       PostMapper postMapper,
+                       UserRepository userRepository) {
+        this.redisTemplate = redisTemplate;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.userRepository = userRepository;
@@ -62,6 +73,7 @@ public class PostManager implements PostService {
         post.setStatus("A");
 
         postRepository.save(post);
+        clearTopLikedPostsCache();
     }
 
     @Override
@@ -79,6 +91,7 @@ public class PostManager implements PostService {
         existingPost.setStatus("U");
 
         postRepository.save(existingPost);
+        clearTopLikedPostsCache();
     }
 
     @Override
@@ -93,5 +106,33 @@ public class PostManager implements PostService {
 
         post.setStatus("D");
         postRepository.save(post);
+        clearTopLikedPostsCache();
+    }
+
+    @Override
+    public List<PostResponseDto> getTopLikedPosts() {
+        String redisKey = "topLikedPosts";
+        List<Post> posts = redisTemplate.opsForValue().get(redisKey);
+
+        if (posts == null) {
+            posts = postRepository.findTop10ByStatusNotOrderByLikeCountDesc("D");
+            redisTemplate.opsForValue().set(redisKey, posts, 1, TimeUnit.HOURS);
+        }
+
+        return posts.stream()
+                .map(postMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Scheduled(fixedRate = 3600000)
+    public void updateTopLikedPostsCache() {
+        List<Post> topPosts = postRepository.findTop10ByStatusNotOrderByLikeCountDesc("D");
+        String redisKey = "topLikedPosts";
+        redisTemplate.opsForValue().set(redisKey, topPosts, 1, TimeUnit.HOURS);
+    }
+
+    private void clearTopLikedPostsCache() {
+        String redisKey = "topLikedPosts";
+        redisTemplate.delete(redisKey);
     }
 }

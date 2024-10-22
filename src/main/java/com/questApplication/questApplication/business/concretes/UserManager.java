@@ -6,6 +6,7 @@ import com.questApplication.questApplication.core.utilities.exception.Unauthoriz
 import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
 import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
+import com.questApplication.questApplication.entity.enums.UserRole;
 import com.questApplication.questApplication.mapper.UserMapper;
 import com.questApplication.questApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +51,9 @@ public class UserManager implements UserService {
         User user = userMapper.toEntity(userRequestDto);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         user.setStatus("A");
-        user.setRole("USER");
+        user.setRole(UserRole.USER);
         userRepository.save(user);
     }
-
 
     @Override
     public void updateUser(Long id, UserRequestDto userRequestDto, String username) {

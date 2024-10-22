@@ -1,10 +1,13 @@
 package com.questApplication.questApplication.entity;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
+import com.questApplication.questApplication.entity.enums.UserRole;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,16 +20,16 @@ public class User {
     @Column(name = "id")
     Long id;
 
-    @Column(name = "username",unique = true)
+    @Column(name = "username", unique = true)
     String username;
 
     @Column(name = "password")
     String password;
     String status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private String role;
-
+    private UserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts;

@@ -1,7 +1,6 @@
 package com.questApplication.questApplication.api.controller;
 
 import com.questApplication.questApplication.business.abstracts.CommentService;
-import com.questApplication.questApplication.entity.Comment;
 import com.questApplication.questApplication.entity.dto.request.CommentRequestDto;
 import com.questApplication.questApplication.entity.dto.response.CommentResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
