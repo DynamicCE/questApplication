@@ -1,7 +1,0 @@
-02:46:56.276 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-02:46:56.296 [SpringApplicationShutdownHook] DEBUG o.h.internal.SessionFactoryImpl - HHH000031: Closing
-02:46:56.299 [SpringApplicationShutdownHook] DEBUG o.h.type.spi.TypeConfiguration$Scope - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@15ce1dca] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@73e7d918]
-02:46:56.299 [SpringApplicationShutdownHook] DEBUG o.h.s.i.AbstractServiceRegistryImpl - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
-02:46:56.302 [SpringApplicationShutdownHook] DEBUG o.h.b.r.i.BootstrapServiceRegistryImpl - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries
-02:46:56.306 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-02:46:56.332 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
