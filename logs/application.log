@@ -27246,3 +27246,8 @@ Caused by: java.net.ConnectException: Connection refused
 18:16:27.673 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-908] INFO  o.s.a.r.c.CachingConnectionFactory - Attempting to connect to: [localhost:5672]
 18:16:27.674 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-908] ERROR o.s.a.r.l.SimpleMessageListenerContainer - Failed to check/redeclare auto-delete queue(s).
 18:16:27.674 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-908] INFO  o.s.a.r.c.CachingConnectionFactory - Attempting to connect to: [localhost:5672]
+18:16:32.770 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-908] WARN  o.s.a.r.l.SimpleMessageListenerContainer - Consumer raised exception, processing can restart if the connection factory supports it. Exception summary: org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused
+18:16:32.772 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-908] INFO  o.s.a.r.l.SimpleMessageListenerContainer - Restarting Consumer@1502432c: tags=[[]], channel=null, acknowledgeMode=AUTO local queue size=0
+18:16:32.779 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-909] INFO  o.s.a.r.c.CachingConnectionFactory - Attempting to connect to: [localhost:5672]
+18:16:32.780 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-909] ERROR o.s.a.r.l.SimpleMessageListenerContainer - Failed to check/redeclare auto-delete queue(s).
+18:16:32.780 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#0-909] INFO  o.s.a.r.c.CachingConnectionFactory - Attempting to connect to: [localhost:5672]
