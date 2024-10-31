@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "ID'ye göre kullanıcı getir", description = "Belirli bir kullanıcıyı ID'sine göre getirir (Sadece ADMIN)")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
@@ -63,7 +63,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/{id}/activate")
+    @PutMapping("/{userId}/activate")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Kullanıcıyı aktifleştir", description = "Belirli bir kullanıcıyı aktifleştirir (Sadece ADMIN)")
     public ResponseEntity<Void> activateUser(@PathVariable Long id) {

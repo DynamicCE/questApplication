@@ -1,6 +1,7 @@
 package com.questApplication.questApplication.api.controller;
 
 import com.questApplication.questApplication.business.abstracts.PostService;
+import com.questApplication.questApplication.entity.dto.request.CommentRequestDto;
 import com.questApplication.questApplication.entity.dto.request.PostRequestDto;
 import com.questApplication.questApplication.entity.dto.response.PostResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com.questApplication.questApplication.business.abstracts.CommentService;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, CommentService commentService) {
         this.postService = postService;
+        this.commentService = commentService;
     }
 
     @GetMapping
@@ -31,7 +35,7 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{postId}")
     @Operation(summary = "ID'ye göre gönderi getir", description = "Belirli bir gönderiyi ID'sine göre getirir")
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
         PostResponseDto result = postService.getPostById(id);
@@ -47,7 +51,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{postId}")
     @Operation(summary = "Bir gönderiyi güncelle", description = "Mevcut bir gönderiyi günceller ve güncellenmiş gönderiyi döndürür")
     public ResponseEntity<Void> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -56,7 +60,7 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{postId}")
     @Operation(summary = "Bir gönderiyi sil", description = "Bir gönderiyi ID'sine göre siler")
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
@@ -73,12 +77,16 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{postId}/comments")
     @Operation(summary = "Bir gönderiye yorum yap")
-    public ResponseEntity<Void> addCommentToPost(@PathVariable Long id, @RequestParam String comment,
+    public ResponseEntity<Void> addCommentToPost(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentRequestDto commentRequestDto,
             @AuthenticationPrincipal UserDetails userDetails) {
-        postService.addCommentToPost(id, comment);
-        return ResponseEntity.noContent().build();
+
+        String username = userDetails.getUsername();
+        commentService.createComment(commentRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

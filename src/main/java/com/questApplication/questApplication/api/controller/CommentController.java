@@ -41,7 +41,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("{id}")
+    @PutMapping("{commentId}")
     @Operation(summary = "Yorum Günceller")
     public ResponseEntity<Void> updateComment(@PathVariable Long id, @RequestBody CommentRequestDto commentRequestDto,
             String username) {
@@ -49,7 +49,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("{commentId}")
     @Operation(summary = "Yorumu Siler")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id, String username) {
         commentService.deleteComment(id, username);
