@@ -1,4 +1,4 @@
-package com.questApplication.questApplication.business.abstracts;
+package com.questApplication.questApplication.service.abstracts;
 
 public
 interface UserDetailsService {

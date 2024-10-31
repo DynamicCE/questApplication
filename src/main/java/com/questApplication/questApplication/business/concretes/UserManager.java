@@ -1,6 +1,6 @@
-package com.questApplication.questApplication.business.concretes;
+package com.questApplication.questApplication.service.concretes;
 
-import com.questApplication.questApplication.business.abstracts.UserService;
+import com.questApplication.questApplication.service.abstracts.UserService;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.User;

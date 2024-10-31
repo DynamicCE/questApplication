@@ -1,4 +1,4 @@
-package com.questApplication.questApplication.business.concretes;
+package com.questApplication.questApplication.service.concretes;
 
 public
 class UserManagerTest {

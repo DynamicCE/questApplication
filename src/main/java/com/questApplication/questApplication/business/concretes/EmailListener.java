@@ -1,4 +1,4 @@
-package com.questApplication.questApplication.business.concretes;
+package com.questApplication.questApplication.service.concretes;
 
 import com.questApplication.questApplication.configuration.RabbitMQConfig;
 import com.questApplication.questApplication.entity.EmailMessage;

@@ -1,4 +1,4 @@
-package com.questApplication.questApplication.business.abstracts;
+package com.questApplication.questApplication.service.abstracts;
 
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
 import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
