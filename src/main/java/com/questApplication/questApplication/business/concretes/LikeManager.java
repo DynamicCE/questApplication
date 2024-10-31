@@ -1,6 +1,6 @@
-package com.questApplication.questApplication.service.concretes;
+package com.questApplication.questApplication.business.concretes;
 
-import com.questApplication.questApplication.service.abstracts.LikeService;
+import com.questApplication.questApplication.business.abstracts.LikeService;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import com.questApplication.questApplication.entity.Comment;
 import com.questApplication.questApplication.entity.Like;

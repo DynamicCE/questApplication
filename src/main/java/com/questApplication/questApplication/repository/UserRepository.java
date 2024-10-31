@@ -11,7 +11,12 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAllByStatusNot(String status, Pageable pageable);
+
     Optional<User> findByIdAndStatusNot(Long id, String status);
+
     Optional<User> findByUsernameAndStatusNot(String username, String status);
+
     boolean existsByUsername(String username);
+
+    boolean existsByUsernameAndStatusNot(String username, String status);
 }

@@ -2,14 +2,12 @@ package com.questApplication.questApplication.core.utilities.jwt;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.questApplication.questApplication.business.concretes.CustomUserDetailsManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
-
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,8 +20,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsManager userDetailsService;
 
-    @Autowired
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsManager userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil,
+            CustomUserDetailsManager userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
@@ -39,10 +37,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
+
             try {
+                if (!jwtUtil.isAccessToken(token)) {
+                    response.sendError(
+                            HttpServletResponse.SC_UNAUTHORIZED,
+                            "Refresh token ile API çağrısı yapılamaz!");
+                    return;
+                }
+
                 username = jwtUtil.validateTokenAndGetUsername(token);
+
             } catch (JWTVerificationException e) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Geçersiz veya süresi dolmuş token");
+                response.sendError(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Geçersiz veya süresi dolmuş token");
                 return;
             }
         }

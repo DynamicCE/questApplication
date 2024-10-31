@@ -21,7 +21,7 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService ) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -43,9 +43,9 @@ public class UserController {
     @PutMapping("/me")
     @Operation(summary = "Mevcut kullanıcıyı güncelle", description = "Oturum açmış kullanıcının bilgilerini günceller")
     public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody UserRequestDto userRequestDto,
-                                                  @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails) {
         userService.updateUser(null, userRequestDto, userDetails.getUsername());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/me")
@@ -68,6 +68,6 @@ public class UserController {
     @Operation(summary = "Kullanıcıyı aktifleştir", description = "Belirli bir kullanıcıyı aktifleştirir (Sadece ADMIN)")
     public ResponseEntity<Void> activateUser(@PathVariable Long id) {
         userService.activateUser(id, null);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

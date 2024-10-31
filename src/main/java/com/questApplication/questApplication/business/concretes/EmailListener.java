@@ -1,10 +1,9 @@
-package com.questApplication.questApplication.service.concretes;
+package com.questApplication.questApplication.business.concretes;
 
 import com.questApplication.questApplication.configuration.RabbitMQConfig;
 import com.questApplication.questApplication.entity.EmailMessage;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ public class EmailListener {
     private final JavaMailSender mailSender;
     private static final Logger logger = LoggerFactory.getLogger(EmailListener.class);
 
-    @Autowired
     public EmailListener(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }

@@ -1,6 +1,6 @@
-package com.questApplication.questApplication.service.concretes;
+package com.questApplication.questApplication.business.concretes;
 
-import com.questApplication.questApplication.service.abstracts.PostService;
+import com.questApplication.questApplication.business.abstracts.PostService;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.Post;
@@ -10,7 +10,6 @@ import com.questApplication.questApplication.entity.dto.response.PostResponseDto
 import com.questApplication.questApplication.mapper.PostMapper;
 import com.questApplication.questApplication.repository.PostRepository;
 import com.questApplication.questApplication.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,11 +29,10 @@ public class PostManager implements PostService {
     private final PostMapper postMapper;
     private final UserRepository userRepository;
 
-    @Autowired
     public PostManager(RedisTemplate<String, List<Post>> redisTemplate,
-                       PostRepository postRepository,
-                       PostMapper postMapper,
-                       UserRepository userRepository) {
+            PostRepository postRepository,
+            PostMapper postMapper,
+            UserRepository userRepository) {
         this.redisTemplate = redisTemplate;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
@@ -64,7 +62,7 @@ public class PostManager implements PostService {
 
     @Override
     @Transactional
-    public void createPost(PostRequestDto postRequestDto, String username) {
+    public Long createPost(PostRequestDto postRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
@@ -74,6 +72,7 @@ public class PostManager implements PostService {
 
         postRepository.save(post);
         clearTopLikedPostsCache();
+        return post.getId();
     }
 
     @Override

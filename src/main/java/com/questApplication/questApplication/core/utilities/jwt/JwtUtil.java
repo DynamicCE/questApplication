@@ -11,26 +11,58 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY;
-    private final long EXPIRATION_TIME;
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JwtUtil(@Value("${jwt.secret}") String secretKey,
-                   @Value("${jwt.expiration}") long expirationTime) {
-        this.SECRET_KEY = secretKey;
-        this.EXPIRATION_TIME = expirationTime;
-    }
+    @Value("${jwt.access.expiration}")
+    private long accessTokenExpiration;
 
-    public String generateToken(String username) {
+    @Value("${jwt.refresh.expiration}")
+    private long refreshTokenExpiration;
+
+    public String generateAccessToken(String username) {
         return JWT.create()
                 .withSubject(username)
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .sign(Algorithm.HMAC256(SECRET_KEY));
+                .withClaim("type", "access")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .sign(Algorithm.HMAC256(secret));
+    }
+
+    public String generateRefreshToken(String username) {
+        return JWT.create()
+                .withSubject(username)
+                .withClaim("type", "refresh")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .sign(Algorithm.HMAC256(secret));
     }
 
     public String validateTokenAndGetUsername(String token) throws JWTVerificationException {
-        return JWT.require(Algorithm.HMAC256(SECRET_KEY))
+        return JWT.require(Algorithm.HMAC256(secret))
                 .build()
                 .verify(token)
                 .getSubject();
+    }
+
+    public boolean isAccessToken(String token) {
+        try {
+            String type = JWT.require(Algorithm.HMAC256(secret))
+                    .build()
+                    .verify(token)
+                    .getClaim("type")
+                    .asString();
+            return "access".equals(type);
+        } catch (JWTVerificationException e) {
+            return false;
+        }
+    }
+
+    public long getAccessTokenExpiration() {
+        return accessTokenExpiration;
+    }
+
+    public long getRefreshTokenExpiration() {
+        return refreshTokenExpiration;
     }
 }

@@ -1,15 +1,13 @@
-package com.questApplication.questApplication.service.concretes;
+package com.questApplication.questApplication.business.concretes;
 
-import com.questApplication.questApplication.service.abstracts.UserService;
+import com.questApplication.questApplication.business.abstracts.UserService;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.UserRequestDto;
 import com.questApplication.questApplication.entity.dto.response.UserResponseDto;
-import com.questApplication.questApplication.entity.enums.UserRole;
 import com.questApplication.questApplication.mapper.UserMapper;
 import com.questApplication.questApplication.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +20,6 @@ public class UserManager implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserManager(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -41,18 +38,6 @@ public class UserManager implements UserService {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
         return userMapper.toResponseDto(user);
-    }
-
-    public void createUser(UserRequestDto userRequestDto) {
-        if (userRepository.existsByUsername(userRequestDto.getUsername())) {
-            throw new IllegalArgumentException("Kullanıcı adı zaten alınmış");
-        }
-
-        User user = userMapper.toEntity(userRequestDto);
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        user.setStatus("A");
-        user.setRole(UserRole.USER);
-        userRepository.save(user);
     }
 
     @Override

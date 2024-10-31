@@ -1,6 +1,6 @@
-package com.questApplication.questApplication.service.concretes;
+package com.questApplication.questApplication.business.concretes;
 
-import com.questApplication.questApplication.service.abstracts.CommentService;
+import com.questApplication.questApplication.business.abstracts.CommentService;
 import com.questApplication.questApplication.core.utilities.exception.ResourceNotFoundException;
 import com.questApplication.questApplication.core.utilities.exception.UnauthorizedException;
 import com.questApplication.questApplication.entity.Comment;
@@ -12,7 +12,6 @@ import com.questApplication.questApplication.mapper.CommentMapper;
 import com.questApplication.questApplication.repository.CommentRepository;
 import com.questApplication.questApplication.repository.PostRepository;
 import com.questApplication.questApplication.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,8 @@ public class CommentManager implements CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    @Autowired
     public CommentManager(CommentRepository commentRepository, CommentMapper commentMapper,
-                          UserRepository userRepository, PostRepository postRepository) {
+            UserRepository userRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
         this.userRepository = userRepository;
@@ -42,8 +40,7 @@ public class CommentManager implements CommentService {
     }
 
     @Override
-    public
-    Page<CommentResponseDto> getCommentsByCommentId ( Long commentId, Pageable pageable ) {
+    public Page<CommentResponseDto> getCommentsByCommentId(Long commentId, Pageable pageable) {
         Page<Comment> comments = commentRepository.findByIdAndStatusNot(commentId, "D", pageable);
         return comments.map(commentMapper::toResponseDto);
     }
@@ -60,21 +57,25 @@ public class CommentManager implements CommentService {
     @Transactional
     public void createComment(CommentRequestDto commentRequestDto, String username) {
         User user = userRepository.findByUsernameAndStatusNot(username, "D")
-                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı")); // yönetici tarafından silindigi halde oturum açık kalmışken işlem yapamaması için.
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı")); // yönetici tarafından
+                                                                                           // silindigi halde oturum
+                                                                                           // açık kalmışken işlem
+                                                                                           // yapamaması için.
 
-        Post post = postRepository.findByIdAndStatusNot(commentRequestDto.getPostId(), "D") // yorum yapılacak gönderi silindiyse.
+        Post post = postRepository.findByIdAndStatusNot(commentRequestDto.getPostId(), "D") // yorum yapılacak gönderi
+                                                                                            // silindiyse.
                 .orElseThrow(() -> new ResourceNotFoundException("Gönderi bulunamadı"));
 
         Comment parentComment = null;
-        if(commentRequestDto.getParentCommentId() != null) {
+        if (commentRequestDto.getParentCommentId() != null) {
             parentComment = commentRepository.findByIdAndStatusNot(commentRequestDto.getParentCommentId(), "D")
-                .orElseThrow(() -> new ResourceNotFoundException("Üst yorum bulunamadı"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Üst yorum bulunamadı"));
         }
 
         Comment comment = commentMapper.toEntity(commentRequestDto);
         comment.setUser(user);
         comment.setPost(post);
-        comment.setParentComment(parentComment); 
+        comment.setParentComment(parentComment);
         comment.setStatus("A");
 
         commentRepository.save(comment);

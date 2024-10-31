@@ -20,7 +20,7 @@ public class PostController {
 
     private final PostService postService;
 
-    public PostController(PostService postService ) {
+    public PostController(PostService postService) {
         this.postService = postService;
     }
 
@@ -40,20 +40,20 @@ public class PostController {
 
     @PostMapping
     @Operation(summary = "Yeni bir gönderi oluştur", description = "Yeni bir gönderi oluşturur ve oluşturulan gönderiyi döndürür")
-    public ResponseEntity<Void> createPost(@Valid @RequestBody PostRequestDto postRequestDto,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Long> createPost(@Valid @RequestBody PostRequestDto postRequestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        postService.createPost(postRequestDto, username);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Long postId = postService.createPost(postRequestDto, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Bir gönderiyi güncelle", description = "Mevcut bir gönderiyi günceller ve güncellenmiş gönderiyi döndürür")
     public ResponseEntity<Void> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
         postService.updatePost(id, postRequestDto, username);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
@@ -66,9 +66,11 @@ public class PostController {
 
     @GetMapping("/user")
     @Operation(summary = "Kullanıcının gönderilerini getir", description = "Oturum açmış kullanıcının gönderilerini sayfalanmış şekilde getirir")
-    public ResponseEntity<Page<PostResponseDto>> getPostsByUser(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<PostResponseDto>> getPostsByUser(Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
         Page<PostResponseDto> result = postService.getPostsByUser(username, pageable);
         return ResponseEntity.ok(result);
     }
+
 }
