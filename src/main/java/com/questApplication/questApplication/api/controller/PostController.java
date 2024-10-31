@@ -73,4 +73,12 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/{id}")
+    @Operation(summary = "Bir gönderiye yorum yap")
+    public ResponseEntity<Void> addCommentToPost(@PathVariable Long id, @RequestParam String comment,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        postService.addCommentToPost(id, comment);
+        return ResponseEntity.noContent().build();
+    }
+
 }
