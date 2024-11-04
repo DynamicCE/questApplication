@@ -7,6 +7,7 @@ import com.questApplication.questApplication.entity.Post;
 import com.questApplication.questApplication.entity.User;
 import com.questApplication.questApplication.entity.dto.request.PostRequestDto;
 import com.questApplication.questApplication.entity.dto.response.PostResponseDto;
+import com.questApplication.questApplication.entity.elastic.PostDocument;
 import com.questApplication.questApplication.mapper.PostMapper;
 import com.questApplication.questApplication.repository.PostRepository;
 import com.questApplication.questApplication.repository.UserRepository;
@@ -16,7 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.questApplication.questApplication.repository.elastic.PostElasticsearchRepository;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -28,15 +29,18 @@ public class PostManager implements PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final UserRepository userRepository;
+    private final PostElasticsearchRepository postElasticsearchRepository;
 
     public PostManager(RedisTemplate<String, List<Post>> redisTemplate,
             PostRepository postRepository,
             PostMapper postMapper,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PostElasticsearchRepository postElasticsearchRepository) {
         this.redisTemplate = redisTemplate;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.userRepository = userRepository;
+        this.postElasticsearchRepository = postElasticsearchRepository;
     }
 
     @Override
@@ -72,6 +76,15 @@ public class PostManager implements PostService {
 
         postRepository.save(post);
         clearTopLikedPostsCache();
+
+        PostDocument postDocument = new PostDocument();
+        postDocument.setId(post.getId().toString());
+        postDocument.setTitle(post.getTitle());
+        postDocument.setText(post.getText());
+        postDocument.setUsername(username);
+        postDocument.setLikeCount(0L);
+        postElasticsearchRepository.save(postDocument);
+
         return post.getId();
     }
 
